@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+    "required": [
+    	"fleet_data",
+      	"scenario_data"
+    ],
+    "properties": {
+    	"fleet_data": {
+        	"type": "string"
+        },
+        "scenario_data": {
+        	"type": "string"
+        }
+    }
+}

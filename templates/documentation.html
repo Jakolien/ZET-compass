@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Documentatie{% endblock title %}
+
+{% block content %}
+    <h1 class="text-center mb-3">Documentatie</h1>
+    <p>Dit is de technische documentatie van de Transport Kompas tool.</p>
+
+    <h2 class="text-center mb-3">API endpoints</h2>
+
+    <h3 class="mt-5">GET /</h3>
+    <p>Deze endpoint haalt de index pagina van de tool op.</p>
+    <h4>URL parameters:</h4>
+    <p>Geen parameters</p>
+
+    <h3 class="mt-5">GET /documentation</h3>
+    <p>Deze endpoint haalt documentatie pagina van de tool op.</p>
+    <h4>URL parameters:</h4>
+    <p>Geen parameters</p>
+
+    <h3 class="mt-5">GET /local_excel</h3>
+    <p>Deze endpoint voert de berekeningen van het PANTEIA model uit met lokale Excel bestanden.</p>
+    <h4>URL parameters:</h4>
+    <ul>
+        <li>
+            fleet_data (string) [optioneel]: Dit is het pad naar het Excel bestand met de wagenpark data.
+            Deze kan absoluut of relatief zijn. Gebruik wel alleen "/" en geen "\".
+            Als het pad dit normaal wel bevat, dan vervang deze simpelweg met "/".
+            Is standaard: "./input/wagenpark.xlsx".
+        </li>
+        <li>
+            scenario_data (string) [optioneel]: Dit is het pad naar het Excel bestand met de wagenpark data.
+            Deze kan absoluut of relatief zijn. Gebruik wel alleen "/" en geen "\".
+            Als het pad dit normaal wel bevat, dan vervang deze simpelweg met "/".
+            Is standaard: "./input/scenarios.xlsx".
+        </li>
+        <li>
+            company (string) [verplicht]: Dit is de naam van het Excel werkblad waarvan
+            de wagenpark data zal ingelezen worden.
+        </li>
+        <li>
+            comparing (string) [optioneel]: Dit is een optie van het model om aan te geven wat
+            met elkaar vergeleken moet worden. Hiervoor zijn de volgende opties:
+            <ul>
+                <li>strategies: Het model zal meerdere strategieën met 1 scenario vergelijken.</li>
+                <li>scenarios: Het model zal meerdere scenarios met 1 strategie vergelijken.</li>
+            </ul>
+            Is standaard: "strategies".
+        </li>
+        <li>
+            strategies (string) [optioneel]: Dit is een komma gesplitste lijst van strategieën.
+            Als comparing gelijk is aan "strategies", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle strategieën gebruikt.
+            Als comparing gelijk is aan "scenarios", dan wordt de eerste strategie in de lijst geselecteerd.
+        </li>
+        <li>
+            scenarios (string) [optioneel]: Dit is een komma gesplitste lijst van scenarios.
+            Als comparing gelijk is aan "scenarios", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle beschikbare scenarios gebruikt.
+            Als comparing gelijk is aan "strategies", dan wordt de eerste scenario in de lijst geselecteerd.
+        </li>
+        <li>
+            output (string) [optioneel]: Dit is een komma geplitste lijst van resultaten.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>graphs: Het resultaat zal verschillende grafieken met TCO waardes bevatten.</li>
+                <li>results: Het resultaat zal de TCO waardes bevatten.</li>
+                <li>input: Het resultaat zal de input data van het model versturen.</li>
+            </ul>
+            Is standaard: "graphs,results".
+        </li>
+        <li>
+            output_format (string) [optioneel]: Dit is de optie die selecteert in
+            welk bestandsformaat het resultaat zal verstuurd worden.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>html: Het resultaat zal als een HTML pagina getoond worden.</li>
+                <li>json: Het resultaat zal als een JSON object verstuurd worden.</li>
+            </ul>
+            Is standaard: "html".
+        </li>
+    </ul>
+
+    <h3 class="mt-5">POST /external_excel</h3>
+    <p>Deze endpoint voert de berekeningen van het PANTEIA model uit met externe Excel bestanden.</p>
+    <h4>URL parameters:</h4>
+    <ul>
+        <li>
+            company (string) [verplicht]: Dit is de naam van het Excel werkblad waarvan
+            de wagenpark data zal ingelezen worden.
+        </li>
+        <li>
+            comparing (string) [optioneel]: Dit is een optie van het model om aan te geven wat
+            met elkaar vergeleken moet worden. Hiervoor zijn de volgende opties:
+            <ul>
+                <li>strategies: Het model zal meerdere strategieën met 1 scenario vergelijken.</li>
+                <li>scenarios: Het model zal meerdere scenarios met 1 strategie vergelijken.</li>
+            </ul>
+            Is standaard: "strategies".
+        </li>
+        <li>
+            strategies (string) [optioneel]: Dit is een komma gesplitste lijst van strategieën.
+            Als comparing gelijk is aan "strategies", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle strategieën gebruikt.
+            Als comparing gelijk is aan "scenarios", dan wordt de eerste strategie in de lijst geselecteerd.
+        </li>
+        <li>
+            scenarios (string) [optioneel]: Dit is een komma gesplitste lijst van scenarios.
+            Als comparing gelijk is aan "scenarios", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle beschikbare scenarios gebruikt.
+            Als comparing gelijk is aan "strategies", dan wordt de eerste scenario in de lijst geselecteerd.
+        </li>
+        <li>
+            output (string) [optioneel]: Dit is een komma geplitste lijst van resultaten.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>graphs: Het resultaat zal verschillende grafieken met TCO waardes bevatten.</li>
+                <li>results: Het resultaat zal de TCO waardes bevatten.</li>
+                <li>input: Het resultaat zal de input data van het model versturen.</li>
+            </ul>
+            Is standaard: "graphs,results".
+        </li>
+        <li>
+            output_format (string) [optioneel]: Dit is de optie die selecteert in
+            welk bestandsformaat het resultaat zal verstuurd worden.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>html: Het resultaat zal als een HTML pagina getoond worden.</li>
+                <li>json: Het resultaat zal als een JSON object verstuurd worden.</li>
+            </ul>
+            Is standaard: "html".
+        </li>
+    </ul>
+    <h4>Body</h4>
+    <p>De body bestaat uit JSON data:</p>
+    <ul>
+        <li>fleet_data (string) [verplicht]: Dit is het base 64 geencodeerde Excel bestand van de wagenpark data.</li>
+        <li>scenario_data (string) [verplicht]: Dit is het base 64 geencodeerde Excel bestand van de scenario data.</li>
+    </ul>
+
+    <h3 class="mt-5">POST /json_data</h3>
+    <p>Deze endpoint voert de berekeningen van het PANTEIA model uit met JSON input data.</p>
+    <h4>URL parameters:</h4>
+    <ul>
+        <li>
+            comparing (string) [optioneel]: Dit is een optie van het model om aan te geven wat
+            met elkaar vergeleken moet worden. Hiervoor zijn de volgende opties:
+            <ul>
+                <li>strategies: Het model zal meerdere strategieën met 1 scenario vergelijken.</li>
+                <li>scenarios: Het model zal meerdere scenarios met 1 strategie vergelijken.</li>
+            </ul>
+            Is standaard: "strategies".
+        </li>
+        <li>
+            strategies (string) [optioneel]: Dit is een komma gesplitste lijst van strategieën.
+            Als comparing gelijk is aan "strategies", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle strategieën gebruikt.
+            Als comparing gelijk is aan "scenarios", dan wordt de eerste strategie in de lijst geselecteerd.
+        </li>
+        <li>
+            scenarios (string) [optioneel]: Dit is een komma gesplitste lijst van scenarios.
+            Als comparing gelijk is aan "scenarios", dan wordt deze lijst gebruikt.
+            Anders worden standaard alle beschikbare scenarios gebruikt.
+            Als comparing gelijk is aan "strategies", dan wordt de eerste scenario in de lijst geselecteerd.
+        </li>
+        <li>
+            output (string) [optioneel]: Dit is een komma geplitste lijst van resultaten.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>graphs: Het resultaat zal verschillende grafieken met TCO waardes bevatten.</li>
+                <li>results: Het resultaat zal de TCO waardes bevatten.</li>
+                <li>input: Het resultaat zal de input data van het model versturen.</li>
+            </ul>
+            Is standaard: "graphs,results".
+        </li>
+        <li>
+            output_format (string) [optioneel]: Dit is de optie die selecteert in
+            welk bestandsformaat het resultaat zal verstuurd worden.
+            Hiervoor zijn de volgende opties:
+            <ul>
+                <li>html: Het resultaat zal als een HTML pagina getoond worden.</li>
+                <li>json: Het resultaat zal als een JSON object verstuurd worden.</li>
+            </ul>
+            Is standaard: "html".
+        </li>
+    </ul>
+    <h4>Body</h4>
+    <p>De body bestaat uit JSON data:</p>
+    <ul>
+        <li>fleet (object) [verplicht]:
+            <ul>
+                <li>De nummerplaat/naam van een voertuig (object):
+                    <ul>
+                        <li>number_plate (string) [verplicht]: De nummerplaat van het voertuig.</li>
+                        <li>type (string) [verplicht]: Het type voertuig.</li>
+                        <li>category (string) [verplicht]: De voertuigcategorie.</li>
+                        <li>fuel_type (string) [verplicht]: Het brandstoftype.</li>
+                        <li>euronorm (integer) [verplicht]: De Europese emissieklasse.</li>
+                        <li>year_of_purchase (integer) [verplicht]: Het jaar van aankoop.</li>
+                        <li>is_cooled (float) [boolean]: Of het voertuig een koelmachine bezit.</li>
+                        <li>PTO_fuel_consumption (integer) [verplicht]: Het PTO brandstofverbruik.</li>
+                        <li>expected_total_distance_traveled_in_km (integer) [verplicht]: De huidige kilometerstand (in km).</li>
+                        <li>maximum_daily_distance_in_km (integer) [verplicht]: De maximum dagelijkse afstand (in km).</li>
+                        <li>amount_of_operational_days (integer) [verplicht]: De hoeveelheid dagen per jaar dat het voertuig operationeel is.</li>
+                        <li>drives_in_future_ZE_zone (boolean) [verplicht]: Of het voertuig in een toekomstige Zero Emissie zone rijdt.</li>
+                        <li>flexible_planning (boolean) [verplicht]: Of het voertuig flexibel ingepland kan worden.</li>
+                        <li>technological_lifespan (integer) [verplicht]: De technologische levensduur (in jaren)</li>
+                        <li>expected_residual_value_after_repayment (integer) [verplicht]: De verwachte restwaarde na afschrijving.</li>
+                        <li>electricity_type (string) [verplicht]: Het type elektriciteit waarmee het voertuig zich zou kunnen opladen.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+
+        <li>scenarios (object) [verplicht]:
+            <ul>
+                <li>Het scenario type (object):
+                    <ul>
+                        <li>Het voertuig type (object):
+                            <ul>
+                                <li>name (string) [verplicht]: De gehele naam van de scenario.</li>
+                                <li>scenario_type (string) [verplicht]: Het scenario type.</li>
+                                <li>vehicle_type (string) [verplicht]: Het voertuig type.</li>
+                                <li>years (object) [verplicht]:
+                                    <ul>
+                                        <li>Het jaar van de data (object):
+                                            <ul>
+                                                <li>year (integer) [verplicht]: Het huidige jaar.</li>
+                                                <li>diesel_price_in_euro (float) [verplicht]: De inkoopprijs van diesel per liter in euro.</li>
+                                                <li>electric_price_in_euro (float) [verplicht]: De inkoopprijs van elektriciteit per kWh in euro.</li>
+                                                <li>capacity_in_kWh (int) [verplicht]: De huidige elektrische capaciteit.</li>
+                                                <li>repair_costs_EV_euro_per_year (float) [verplicht]: De jaarlijkse reparatiekosten van een elektrisch voertuig.</li>
+                                                <li>maintenance_costs_EV_euro_per_year (float) [verplicht]: De jaarlijkse onderhoudskosten van een elektrisch voertuig.</li>
+                                                <li>maintenance_costs_diesel_euro_per_year (float) [verplicht]: De jaarlijkse onderhoudskosten van een diesel voertuig.</li>
+                                                <li>standstil_EV_in_days (float) [verplicht]: De jaarlijkse hoeveelheid aan tijd voor onderhoud en reparatie in dagen voor een elektrsich voertuig.</li>
+                                                <li>subsidies_EV_in_euro (float) [verplicht]: De jaarlijkse hoeveelheid subsidies voor elektrische voertuigen.</li>
+                                                <li>CO2_price_in_euro_per_ton (float) [verplicht]: De boete voor CO2 uitstoot in euro per ton.</li>
+                                                <li>efficiency_diesel_in_liter_per_km (float) [verplicht]: De brandstofefficiëntie van diesel in liter per km.</li>
+                                                <li>efficiency_electricity_in_kWh_per_km (float) [verplicht]: De brandstofefficiëntie van elektriciteit in kWh per km.</li>
+                                                <li>electricity_price_excluding_tax_in_euro_per_kWh (float) [verplicht]: De inkoopprijs van elektriciteit zonder BTW in euro per kWh.</li>
+                                                <li>gross_purchase_cost_charging_system_in_euro (float) [verplicht]: De kosten van een elektrisch oplaadsysteem in euro (met BTW).</li>
+                                                <li>gross_installation_cost_charging_system_in_euro (float) [verplicht]: De installatiekosten van een elektrisch oplaadsysteem in euro (met BTW).</li>
+                                                <li>fuel_price_diesel_excluding_tax_in_euro_per_liter (float) [verplicht]: De inkoopprijs van diesel zonder BTW in euro per liter.</li>
+                                                <li>change_in_excise_duty_diesel_in_percentage (float) [verplicht]: De relatieve verandering van diesel accijns in percentages.</li>
+                                                <li>vehicle_tax_diesel_in_euro_per_year (float) [verplicht]: De wegenbelasting van een diesel voertuig in euro per jaar.</li>
+                                                <li>vehicle_tax_electric_in_euro_per_year (float) [verplicht]: De wegenbelasting van een elektrisch voertuig in euro per jaar.</li>
+                                                <li>economical_lifespan_diesel (integer) [verplicht]: De economische levensduur van een diesel voertuig in jaren.</li>
+                                                <li>economical_lifespan_electric (integer) [verplicht]: De economische levensduur van een elektrisch voertuig in jaren.</li>
+                                                <li>energy_subsidy_in_euro_per_kWh (float) [verplicht]: De energiesubsidie voor elektrsiche voertuigen in euro per kWh.</li>
+                                                <li>fixed_ZE_vehicle_tax_in_euro_per_year (float) [verplicht]: De jaarlijkse boete/belasting voor dieselvoertuigen die in Zero Emissie zones rijden.</li>
+                                                <li>difference_truck_toll_tax_in_euro_per_km (float) [verplicht]: De relatieve verandering van vrachtwagen tolbelasting in euro per km.</li>
+                                                <li>subsidy_charging_system_installation_in_euro_per_installation (float) [verplicht]: De subsidie voor het installeren van een elektrisch oplaadsysteem in euro.</li>
+                                                <li>residual_value_EV_year_1_in_percentage (float) [verplicht]: De restwaarde van een 1 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_2_in_percentage (float) [verplicht]: De restwaarde van een 2 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_3_in_percentage (float) [verplicht]: De restwaarde van een 3 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_4_in_percentage (float) [verplicht]: De restwaarde van een 4 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_5_in_percentage (float) [verplicht]: De restwaarde van een 5 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_6_in_percentage (float) [verplicht]: De restwaarde van een 6 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_7_in_percentage (float) [verplicht]: De restwaarde van een 7 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_8_in_percentage (float) [verplicht]: De restwaarde van een 8 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_9_in_percentage (float) [verplicht]: De restwaarde van een 9 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_10_in_percentage (float) [verplicht]: De restwaarde van een 10 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_11_in_percentage (float) [verplicht]: De restwaarde van een 11 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_12_in_percentage (float) [verplicht]: De restwaarde van een 12 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_13_in_percentage (float) [verplicht]: De restwaarde van een 13 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_14_in_percentage (float) [verplicht]: De restwaarde van een 14 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_EV_year_15_in_percentage (float) [verplicht]: De restwaarde van een 15 jaar oude elektrische voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_1_in_percentage (float) [verplicht]: De restwaarde van een 1 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_2_in_percentage (float) [verplicht]: De restwaarde van een 2 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_3_in_percentage (float) [verplicht]: De restwaarde van een 3 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_4_in_percentage (float) [verplicht]: De restwaarde van een 4 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_5_in_percentage (float) [verplicht]: De restwaarde van een 5 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_6_in_percentage (float) [verplicht]: De restwaarde van een 6 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_7_in_percentage (float) [verplicht]: De restwaarde van een 7 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_8_in_percentage (float) [verplicht]: De restwaarde van een 8 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_9_in_percentage (float) [verplicht]: De restwaarde van een 9 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_10_in_percentage (float) [verplicht]: De restwaarde van een 10 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_11_in_percentage (float) [verplicht]: De restwaarde van een 11 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_12_in_percentage (float) [verplicht]: De restwaarde van een 12 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_13_in_percentage (float) [verplicht]: De restwaarde van een 13 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_14_in_percentage (float) [verplicht]: De restwaarde van een 14 jaar oude diesel voertuig in percentages.</li>
+                                                <li>residual_value_diesel_year_15_in_percentage (float) [verplicht]: De restwaarde van een 15 jaar oude diesel voertuig in percentages.</li>
+                                                <li>charging_capacity_external_charging_pole (float) [verplicht]: De oplaadcapaciteit van een externe oplaadpaal.</li>
+                                                <li>charging_capacity_charging_pole_on_depot (float) [verplicht]: De oplaadcapaciteit van een oplaadpaal op depot.</li>
+                                                <li>needed_charging_capacity_depot (float) [verplicht]: De nodige oplaadcapaciteit om op depot op te laden.</li>
+                                                <li>needed_charging_capacity_in_transit (float) [verplicht]: De nodige oplaadcapaciteit om onderweg op te laden.</li>
+                                                <li>AC37_at_home (float) [verplicht]: De oplaadkosten van een AC37 oplaadpaal (op depot) per kWh in euro.</li>
+                                                <li>AC10_in_transit (float) [verplicht]: De oplaadkosten van een AC10 oplaadpaal (onderweg) per kWh in euro.</li>
+                                                <li>AC20_in_transit (float) [verplicht]: De oplaadkosten van een AC20 oplaadpaal (onderweg) per kWh in euro.</li>
+                                                <li>AC20_at_home (float) [verplicht]: De oplaadkosten van een AC20 oplaadpaal (op depot) per kWh in euro.</li>
+                                                <li>FC50_in_transit (float) [verplicht]: De oplaadkosten van een FC50 oplaadpaal (onderweg) per kWh in euro.</li>
+                                                <li>FC50_at_home (float) [verplicht]: De oplaadkosten van een FC50 oplaadpaal (op depot) per kWh in euro.</li>
+                                                <li>HPC150_in_transit (float) [verplicht]: De oplaadkosten van een HPC150 oplaadpaal (onderweg) per kWh in euro.</li>
+                                                <li>HPC150_at_home (float) [verplicht]: De oplaadkosten van een HPC150 oplaadpaal (op depot) per kWh in euro.</li>
+                                                <li>HPC350_in_transit (float) [verplicht]: De oplaadkosten van een HPC350 oplaadpaal (onderweg) per kWh in euro.</li>
+                                                <li>HPC350_at_home (float) [verplicht]: De oplaadkosten van een HPC350 oplaadpaal (op depot) per kWh in euro.</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+{% endblock content %}

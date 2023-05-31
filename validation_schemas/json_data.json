@@ -1,0 +1,420 @@
+{
+	"$schema": "https://json-schema.org/draft/2019-09/schema",
+    "required": [
+    	"fleet",
+      	"scenarios"
+    ],
+    "properties": {
+      	"fleet": {
+        	"type": "object",
+            "patternProperties": {
+            	"^[a-zA-Z0-9-]+$": {
+					"type": "object",
+                    "required": [
+                    	"number_plate",
+                      	"type",
+                      	"category",
+                      	"fuel_type",
+                      	"euronorm",
+                      	"year_of_purchase",
+                      	"is_cooled",
+                      	"PTO_fuel_consumption",
+                      	"expected_total_distance_traveled_in_km",
+                      	"maximum_daily_distance_in_km",
+                      	"amount_of_operational_days",
+                      	"drives_in_future_ZE_zone",
+                      	"flexible_planning",
+                      	"technological_lifespan",
+                      	"expected_residual_value_after_repayment",
+                      	"electricity_type"
+                    ],
+                    "properties": {
+                    	"number_plate": {
+                        	"type": "string"
+                        },
+                      	"type": {
+                        	"type": "string"
+                        },
+                      	"category": {
+                        	"type": "string",
+                            "enum": [
+                            	"N1",
+                              	"N2",
+                              	"N3"
+                            ]
+                        },
+                      	"fuel_type": {
+                        	"type": "string",
+                            "enum": [
+                            	"Diesel",
+                                "Elektrisch",
+                              	"Waterstof"
+                            ]
+                        },
+                      	"euronorm": {
+                        	"type": "integer",
+                            "minimum": 1
+                        },
+                      	"year_of_purchase": {
+                        	"type": "integer"
+                        },
+                      	"is_cooled": {
+                        	"type": "boolean"
+                        },
+                      	"PTO_fuel_consumption": {
+                        	"type": "integer"
+                        },
+                      	"expected_total_distance_traveled_in_km": {
+                        	"type": "integer"
+                        },
+                      	"maximum_daily_distance_in_km": {
+                        	"type": "integer"
+                        },
+                      	"amount_of_operational_days": {
+                        	"type": "integer",
+                            "minimum": 1
+                        },
+                      	"drives_in_future_ZE_zone": {
+                        	"type": "boolean"
+                        },
+                      	"flexible_planning": {
+                        	"type": "boolean"
+                        },
+                      	"technological_lifespan": {
+                        	"type": "integer",
+                            "minimum": 1
+                        },
+                      	"expected_residual_value_after_repayment": {
+                        	"type": "integer"
+                        },
+                      	"electricity_type": {
+                        	"type": "string",
+                        	"enum": [
+                            	"groen",
+                            	"grijs"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+    	"scenarios": {
+        	"type": "object",
+            "patternProperties": {
+            	"^laag|midden|hoog$": {
+                	"type": "object",
+                    "patternProperties": {
+                    	"^N\\d$": {
+                        	"type": "object",
+                            "required": [
+                            	"name",
+                              	"scenario_type",
+                              	"vehicle_type",
+                              	"years"
+                            ],
+                            "properties": {
+                            	"name": {
+                                	"type": "string"
+                                },
+                              	"scenario_type": {
+                                	"type": "string"
+                                },
+                              	"vehicle_type": {
+                                	"type": "string"
+                                },
+                              	"years": {
+                                	"type": "object",
+                                   	"patternProperties": {
+                                    	"^\\d+$": {
+                                        	"type": "object",
+                                            "required": [
+                                            	"year",
+                                                "diesel_price_in_euro",
+                                                "electric_price_in_euro",
+                                                "capacity_in_kWh",
+                                                "repair_costs_EV_euro_per_year",
+                                                "maintenance_costs_EV_euro_per_year",
+                                                "maintenance_costs_diesel_euro_per_year",
+                                                "standstil_EV_in_days",
+                                                "subsidies_EV_in_euro",
+                                                "CO2_price_in_euro_per_ton",
+                                                "efficiency_diesel_in_liter_per_km",
+                                                "efficiency_electricity_in_kWh_per_km",
+                                                "electricity_price_excluding_tax_in_euro_per_kWh",
+                                                "gross_purchase_cost_charging_system_in_euro",
+                                                "gross_installation_cost_charging_system_in_euro",
+                                                "fuel_price_diesel_excluding_tax_in_euro_per_liter",
+                                                "change_in_excise_duty_diesel_in_percentage",
+                                                "vehicle_tax_diesel_in_euro_per_year",
+                                                "vehicle_tax_electric_in_euro_per_year",
+                                                "economical_lifespan_diesel",
+                                                "economical_lifespan_electric",
+                                                "energy_subsidy_in_euro_per_kWh",
+                                                "fixed_ZE_vehicle_tax_in_euro_per_year",
+                                                "difference_truck_toll_tax_in_euro_per_km",
+                                                "subsidy_charging_system_installation_in_euro_per_installation",
+                                                "residual_value_EV_year_1_in_percentage",
+                                                "residual_value_EV_year_2_in_percentage",
+                                                "residual_value_EV_year_3_in_percentage",
+                                                "residual_value_EV_year_4_in_percentage",
+                                                "residual_value_EV_year_5_in_percentage",
+                                                "residual_value_EV_year_6_in_percentage",
+                                                "residual_value_EV_year_7_in_percentage",
+                                                "residual_value_EV_year_8_in_percentage",
+                                                "residual_value_EV_year_9_in_percentage",
+                                                "residual_value_EV_year_10_in_percentage",
+                                                "residual_value_EV_year_11_in_percentage",
+                                                "residual_value_EV_year_12_in_percentage",
+                                                "residual_value_EV_year_13_in_percentage",
+                                                "residual_value_EV_year_14_in_percentage",
+                                                "residual_value_EV_year_15_in_percentage",
+                                                "residual_value_diesel_year_1_in_percentage",
+                                                "residual_value_diesel_year_2_in_percentage",
+                                                "residual_value_diesel_year_3_in_percentage",
+                                                "residual_value_diesel_year_4_in_percentage",
+                                                "residual_value_diesel_year_5_in_percentage",
+                                                "residual_value_diesel_year_6_in_percentage",
+                                                "residual_value_diesel_year_7_in_percentage",
+                                                "residual_value_diesel_year_8_in_percentage",
+                                                "residual_value_diesel_year_9_in_percentage",
+                                                "residual_value_diesel_year_10_in_percentage",
+                                                "residual_value_diesel_year_11_in_percentage",
+                                                "residual_value_diesel_year_12_in_percentage",
+                                                "residual_value_diesel_year_13_in_percentage",
+                                                "residual_value_diesel_year_14_in_percentage",
+                                                "residual_value_diesel_year_15_in_percentage",
+                                                "charging_capacity_external_charging_pole",
+                                                "charging_capacity_charging_pole_on_depot",
+                                                "needed_charging_capacity_depot",
+                                                "needed_charging_capacity_in_transit",
+                                                "AC37_at_home",
+                                                "AC10_in_transit",
+                                                "AC20_in_transit",
+                                                "AC20_at_home",
+                                                "FC50_in_transit",
+                                                "FC50_at_home",
+                                                "HPC150_in_transit",
+                                                "HPC150_at_home",
+                                                "HPC350_in_transit",
+                                                "HPC350_at_home"
+                                            ],
+                                            "properties": {
+                                            	"year": {
+                                                	"type": "integer"
+                                                },
+                                                "diesel_price_in_euro": {
+                                                	"type": "number"
+                                                },
+                                                "electric_price_in_euro": {
+                                                	"type": "number"
+                                                },
+                                                "capacity_in_kWh": {
+                                                	"type": "integer"
+                                                },
+                                                "repair_costs_EV_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "maintenance_costs_EV_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "maintenance_costs_diesel_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "standstil_EV_in_days": {
+                                                	"type": "number"
+                                                },
+                                                "subsidies_EV_in_euro": {
+                                                	"type": "number"
+                                                },
+                                                "CO2_price_in_euro_per_ton": {
+                                                	"type": "number"
+                                                },
+                                                "efficiency_diesel_in_liter_per_km": {
+                                                	"type": "number"
+                                                },
+                                                "efficiency_electricity_in_kWh_per_km": {
+                                                	"type": "number"
+                                                },
+                                                "electricity_price_excluding_tax_in_euro_per_kWh": {
+                                                	"type": "number"
+                                                },
+                                                "gross_purchase_cost_charging_system_in_euro": {
+                                                	"type": "number"
+                                                },
+                                                "gross_installation_cost_charging_system_in_euro": {
+                                                	"type": "number"
+                                                },
+                                                "fuel_price_diesel_excluding_tax_in_euro_per_liter": {
+                                                	"type": "number"
+                                                },
+                                                "change_in_excise_duty_diesel_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "vehicle_tax_diesel_in_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "vehicle_tax_electric_in_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "economical_lifespan_diesel": {
+                                                	"type": "integer"
+                                                },
+                                                "economical_lifespan_electric": {
+                                                	"type": "integer"
+                                                },
+                                                "energy_subsidy_in_euro_per_kWh": {
+                                                	"type": "number"
+                                                },
+                                                "fixed_ZE_vehicle_tax_in_euro_per_year": {
+                                                	"type": "number"
+                                                },
+                                                "difference_truck_toll_tax_in_euro_per_km": {
+                                                	"type": "number"
+                                                },
+                                                "subsidy_charging_system_installation_in_euro_per_installation": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_1_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_2_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_3_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_4_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_5_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_6_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_7_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_8_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_9_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_10_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_11_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_12_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_13_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_14_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_EV_year_15_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_1_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_2_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_3_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_4_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_5_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_6_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_7_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_8_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_9_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_10_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_11_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_12_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_13_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_14_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "residual_value_diesel_year_15_in_percentage": {
+                                                	"type": "number"
+                                                },
+                                                "charging_capacity_external_charging_pole": {
+                                                	"type": "number"
+                                                },
+                                                "charging_capacity_charging_pole_on_depot": {
+                                                	"type": "number"
+                                                },
+                                                "needed_charging_capacity_depot": {
+                                                	"type": "number"
+                                                },
+                                                "needed_charging_capacity_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "AC37_at_home": {
+                                                	"type": "number"
+                                                },
+                                                "AC10_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "AC20_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "AC20_at_home": {
+                                                	"type": "number"
+                                                },
+                                                "FC50_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "FC50_at_home": {
+                                                	"type": "number"
+                                                },
+                                                "HPC150_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "HPC150_at_home": {
+                                                	"type": "number"
+                                                },
+                                                "HPC350_in_transit": {
+                                                	"type": "number"
+                                                },
+                                                "HPC350_at_home": {
+                                                	"type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

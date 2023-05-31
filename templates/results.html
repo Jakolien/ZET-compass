@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Resultaten{% endblock title %}
+
+{% block content %}
+    <h1 class="text-center">Resultaten</h1>
+
+    {# Graphs #}
+    {% if "graphs" in data %}
+        <h2 class="text-center">Grafieken</h2>
+
+        {% if "vehicle_TCO" in data["graphs"] %}
+            <h3 class="text-center">TCO van voertuigen</h3>
+            {% for number_plate, scenarios in data["graphs"]["vehicle_TCO"].items() %}
+                <h4>{{ number_plate }}</h4>
+                {% for scenario, graph in scenarios.items() %}
+                    <p>{{ scenario }}:</p>
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-tco-kosten-voertuig-{{ number_plate }}"
+                         alt="TCO grafieken van {{ number_plate }} voor {{ scenario }} scenario." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if "TCO_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Totale TCO van wagenpark als staafgrafiek</h3>
+            {% for scenario, graph in data["graphs"]["TCO_total_bar"].items() %}
+                <p>{{ scenario }}:</p>
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-tco-kosten-staafdiagram"
+                     alt="TCO grafieken van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        {% if "CO2_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Totale TCO van wagenpark als staafgrafiek</h3>
+            {% for scenario, graph in data["graphs"]["CO2_total_bar"].items() %}
+                <p>{{ scenario }}:</p>
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-co2-uitstoot-staafdiagram"
+                     alt="CO2 grafieken van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        {% if "TCO_total_cost" in data["graphs"] %}
+            <h3 class="text-center">TCO kosten van wagenpark als lijngrafiek</h3>
+            {% for scenario, graph in data["graphs"]["TCO_total_cost"].items() %}
+                <p>{{ scenario }}:</p>
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-tco-kosten-lijndiagram"
+                     alt="TCO kosten grafiek van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        {% if "TCO_total_emissions" in data["graphs"] %}
+            <h3 class="text-center">TCO uitstoot van wagenpark als lijngrafiek</h3>
+            {% for scenario, graph in data["graphs"]["TCO_total_emissions"].items() %}
+                <p>{{ scenario }}:</p>
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-co2-uitstoot-lijndiagram"
+                     alt="TCO uitstoot grafiek van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        {% if "Capacity_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Laadcapaciteit wagenpark</h3>
+            {% for scenario, strategies in data["graphs"]["Capacity_total_bar"].items() %}
+                {% for strategy, graph in strategies.items() %}
+                    <p>scenario: {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadcapaciteit"
+                         alt="Laadcapaciteit wagenpark voor {{ scenario }}
+                         scenario en strategie {{ strategy.split('_')[1] }}." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if "TCO_costs_breakdown" in data["graphs"] %}
+            <h3 class="text-center">TCO kostenverdeling van wagenpark</h3>
+            {% for scenario, strategies in data["graphs"]["TCO_costs_breakdown"].items() %}
+                {% for strategy, graph in strategies.items() %}
+                    <p>scenario: {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-tco-kostenverdeling"
+                         alt="TCO kostenverdeling grafiek van wagenpark voor {{ scenario }}
+                         scenario en strategie {{ strategy.split('_')[1] }}." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if "vehicle_charging_capacity" in data["graphs"] %}
+            <h3 class="text-center">Laadbehoefte van voertuigen</h3>
+            {% for number_plate, scenarios in data["graphs"]["vehicle_charging_capacity"].items() %}
+                <h4>{{ number_plate }}</h4>
+                {% for scenario, strategies in scenarios.items() %}
+                    <p>{{ scenario }}:</p>
+                    {% for strategy, graph in strategies.items() %}
+                        <img src="data:image/png;base64,{{ graph }}"
+                             id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadbehoefte-voertuig-{{ number_plate }}"
+                             alt="Laadbehoefte grafieken van {{ number_plate }} voor {{ scenario }} scenario
+                             en strategie {{ strategy.split('_')[1] }}." />
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if "vehicle_charging_time" in data["graphs"] %}
+            <h3 class="text-center">Laadtijd van voertuigen</h3>
+            {% for number_plate, scenarios in data["graphs"]["vehicle_charging_time"].items() %}
+                <h4>{{ number_plate }}</h4>
+                {% for scenario, strategies in scenarios.items() %}
+                    <p>{{ scenario }}:</p>
+                    {% for strategy, graph in strategies.items() %}
+                        <img src="data:image/png;base64,{{ graph }}"
+                             id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadtijd-voertuig-{{ number_plate }}"
+                             alt="Laadtijd grafieken van {{ number_plate }} voor {{ scenario }} scenario
+                             en strategie {{ strategy.split('_')[1] }}." />
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+    {% endif %}
+
+    {# Results #}
+    {% if "results" in data %}
+        <h2 class="text-center">Resultaten als tabellen</h2>
+
+        {% if "sum" in data["results"] %}
+            <h3 class="text-center">Wagenpark totaal</h3>
+            {% for scenario, strategies in data["results"]["sum"].items() %}
+                {% for strategy, years in strategies.items() %}
+                    <p>{{ scenario }} - strategie {{ strategy.split("_")[1] }}:</p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>year</th>
+                                {% for prop in result_properties %}
+                                <th>{{ prop }}</th>
+                            {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for year, year_data in years.items() %}
+                                <tr>
+                                    <td>{{ year }}</td>
+                                    {% for prop, value in year_data.items() %}
+                                        <td>{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+{#        <h3 class="text-center">Voertuig resultaten</h3>#}
+{#        {% for number_plate, vehicle_results in data["results"].items() if number_plate != "sum" %}#}
+{#            <h4 class="text-center">Voertuig: {{ number_plate }}</h4>#}
+{#            {% for scenario, strategies in vehicle_results.items() %}#}
+{#                {% for strategy, years in strategies.items() %}#}
+{#                    <p>{{ scenario }} - strategie {{ strategy.split("_")[1] }}:</p>#}
+{#                    <table class="table table-striped">#}
+{#                        <thead>#}
+{#                            <tr>#}
+{#                                <th>year</th>#}
+{#                                {% for prop in result_properties %}#}
+{#                                <th>{{ prop }}</th>#}
+{#                            {% endfor %}#}
+{#                            </tr>#}
+{#                        </thead>#}
+{#                        <tbody>#}
+{#                            {% for year, year_data in years.items() %}#}
+{#                                <tr>#}
+{#                                    <td>{{ year }}</td>#}
+{#                                    {% for prop, value in year_data.items() %}#}
+{#                                        <td>{{ value }}</td>#}
+{#                                    {% endfor %}#}
+{#                                </tr>#}
+{#                            {% endfor %}#}
+{#                        </tbody>#}
+{#                    </table>#}
+{#                {% endfor %}#}
+{#            {% endfor %}#}
+{#        {% endfor %}#}
+
+        <h3 class="text-center">Transitiejaar per voertuig</h3>
+
+        <p>scenario: {{ scenario }}</p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>nummerplaat</th>
+                    {% for strategy in ("strategie 1","strategie 2","strategie 3","strategie 4","strategie 5") %}
+                        <th>{{strategy}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for number_plate, scenarios in data["transition_year"].items() %}
+                    {% for scenario, strategies in scenarios.items() %}
+                    <tr>
+                        <td>{{number_plate}}</td>
+                        {% for strategy in strategies.values() %}
+                            <td>{{strategy}}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+
+    {# Inputs #}
+    {% if "original_fleet" in data %}
+        <h2 class="text-center">Wagenpark</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    {% for prop in fleet_properties %}
+                        <th>{{ prop }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for number_plate, vehicle_data in data["original_fleet"].items() %}
+                    <tr>
+                        {% for value in vehicle_data.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if "scenarios" in data %}
+        <h2 class="text-center">Scenarios</h2>
+        {% for scenario_type, vehicle_types in data["scenarios"].items() %}
+            {% for vehicle_type, scenario_data in vehicle_types.items() %}
+                <h3>{{ scenario_data["name"] }}</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% for prop in scenario_year_properties %}
+                                <th>{{ prop }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for year, year_data in scenario_data["years"].items() %}
+                            <tr>
+                                {% for value in year_data.values() %}
+                                    <td>{{ value }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+{% endblock content %}
