@@ -52,7 +52,7 @@ def process_local_excel():
                         selected_scenarios,
                         selected_strategies,
                         logger)
-
+ 
     # Return output
     output_format = request.args.get("output_format")
     return format_output(output_format, data)

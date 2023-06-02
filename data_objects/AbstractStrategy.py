@@ -208,7 +208,9 @@ class AbstractStrategy:
         :rtype: dict
         """
 
-        if current_fuel_type.capitalize() == "Diesel":
+        list_of_fuel_types = ["Diesel", "CNG", "Blauwe diesel", "Benzine", "LNG"]
+
+        if current_fuel_type.capitalize() in list_of_fuel_types:
             result = PANTEIA_interface.get_TCO_diesel()
         else:
             result = PANTEIA_interface.get_TCO_electric(is_exclusive_charging_at_depot_possible)

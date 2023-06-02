@@ -703,7 +703,7 @@ class PANTEIAInterface(AbstractExcelInterface):
                                                  transition_year)
 
     def get_TCO_electric(self,
-                         is_exclusive_charging_at_depot_possible: bool = True,
+                         is_exclusive_charging_at_depot_possible: bool = False,
                          transition_year: int = 1):
 
         """Gets the TCO values for an electric vehicle.
