@@ -75,7 +75,7 @@ class Strategy1(AbstractStrategy):
         charging_time_depot = vehicle.charging_time_depot
         charging_time_public = vehicle.charging_time_public
         current_lifespan = diesel_lifespan if current_fuel_type.lower() == "diesel" else electric_lifespan #TODO change to list of fuel types, also for other strategies
-        list_of_fuel_types = ["Diesel","CNG","Blauwe diesel","Benzine","LNG"]
+        list_of_fossil_fuel_types = ["Diesel","CNG","Blauwe diesel","Benzine","LNG"]
 
         # Update fixed parameters
         PANTEIA_interface.update_fixed_parameters(current_lifespan,
@@ -107,7 +107,7 @@ class Strategy1(AbstractStrategy):
             # Determine if vehicle needs to be changed
             if current_vehicle_age >= current_lifespan:
                 # If currently diesel, switch to electric
-                if current_fuel_type.capitalize() in list_of_fuel_types and \
+                if current_fuel_type.capitalize() in list_of_fossil_fuel_types and \
                    is_optimal_mix_valid:
                     current_fuel_type = "Elektrisch"
                     current_lifespan = electric_lifespan
@@ -150,7 +150,7 @@ class Strategy1(AbstractStrategy):
                 PANTEIA_interface.reset_yearly_depreciation_costs()
 
             # Check costs for Zero Emission zones
-            if current_fuel_type.capitalize() == "Diesel" and \
+            if current_fuel_type.capitalize() in list_of_fossil_fuel_types and \
                     vehicle.drives_in_future_ZE_zone and \
                not self.is_allowed_in_ZE_zone(vehicle, current_vehicle_age, int(year)):
                 PANTEIA_interface.set_ZE_costs(year_data)
