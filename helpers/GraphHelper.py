@@ -2,6 +2,7 @@ from base64 import b64encode
 from datetime import datetime
 from io import BytesIO
 from matplotlib.pyplot import Figure, close, subplots
+from matplotlib import ticker
 
 
 class GraphHelper:
@@ -116,11 +117,13 @@ class GraphHelper:
         axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
         axes[0].set_xlabel("jaar")
         axes[0].set_ylabel("TCO per jaar (euro)")
+        axes[0].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
         # Set labels emissions graph
         axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
         axes[1].set_xlabel("jaar")
         axes[1].set_ylabel("CO2 per jaar (ton)")
+        axes[1].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
         # Set legend
         axes[0].legend(loc="best")
@@ -172,10 +175,11 @@ class GraphHelper:
                 # Set labels
                 ax.set_title(f"Laadbehoefte {number_plate} strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
-                ax.set_ylabel("Energie per dag (kWh)")
+                ax.set_ylabel("Energievraag per dag (kWh)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # change axes limits
-                ymax = max(charging_capacity_public + charging_capacity_depot)
+                ymax = max(charging_capacity_public) + max(charging_capacity_depot)
                 ax.set_ylim(bottom=0, top=ymax + 20)
 
                 # Set legend
@@ -231,11 +235,12 @@ class GraphHelper:
             # Set labels
             ax.set_title(f"Laadbehoefte {number_plate} scenario {scenario}")
             ax.set_xlabel("jaar")
-            ax.set_ylabel("Energie per dag (kWh)")
+            ax.set_ylabel("Energievraag per dag (kWh)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # change axes limits
-            ymax = max(charging_capacity_public + charging_capacity_depot)
-            ax.set_ylim(bottom=ymin, top=ymax + 20)
+            ymax = max(charging_capacity_public) + max(charging_capacity_depot)
+            ax.set_ylim(bottom=0, top=ymax + 20)
 
             # Set legend
             ax.legend(loc="best")
@@ -287,9 +292,10 @@ class GraphHelper:
                 ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
                 ax.set_ylabel("Laadtijd per dag (uur)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # change axes limits
-                ymax = max(charging_time_public + charging_time_depot)
+                ymax = max(charging_time_public) + max(charging_time_depot)
                 ax.set_ylim(bottom=0, top=ymax + 2)
 
                 # Set legend
@@ -343,9 +349,10 @@ class GraphHelper:
                 ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
                 ax.set_ylabel("Laadtijd per dag (uur)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # change axes limits
-                ymax = max(charging_time_public + charging_time_depot)
+                ymax = max(charging_time_public) + max(charging_time_depot)
                 ax.set_ylim(bottom=0, top=ymax + 2)
 
                 # Set legend
@@ -403,6 +410,7 @@ class GraphHelper:
             ax.set_title(f"Totale jaarlijkse kosten wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("TCO per jaar (euro)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Encode graph
             graphs[scenario] = self.encode_graph_to_base64(graph)
@@ -450,6 +458,7 @@ class GraphHelper:
             ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("CO2 per jaar (ton)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Encode graph
             graphs[scenario] = self.encode_graph_to_base64(graph)
@@ -503,6 +512,7 @@ class GraphHelper:
             ax.set_title(f"Totale jaarlijkse kosten wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("TCO per jaar (euro)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Encode graph
             graphs[scenario] = self.encode_graph_to_base64(graph)
@@ -551,6 +561,7 @@ class GraphHelper:
             ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("CO2 per jaar (ton)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Encode graph
             graphs[scenario] = self.encode_graph_to_base64(graph)
@@ -607,6 +618,7 @@ class GraphHelper:
             ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("TCO per jaar (euro)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Set legend
             #ax.legend(loc="best")
@@ -668,6 +680,7 @@ class GraphHelper:
             ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("TCO per jaar (euro)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Set legend
             #ax.legend(loc="best")
@@ -738,6 +751,7 @@ class GraphHelper:
             ax.set_title(f"Jaarlijkse uitstoot wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("CO2 per jaar (ton)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Set legend
             #ax.legend(loc="best")
@@ -807,6 +821,7 @@ class GraphHelper:
             ax.set_title(f"Jaarlijkse uitstoot wagenpark")
             ax.set_xlabel("jaar")
             ax.set_ylabel("CO2 per jaar (ton)")
+            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
             # Set legend
             #ax.legend(loc="best")
@@ -884,6 +899,7 @@ class GraphHelper:
                 ax.set_title(f"TCO totale kostenverdeling wagenpark strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
                 ax.set_ylabel("TCO per jaar (euro)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # Set legend
                 ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
@@ -929,6 +945,7 @@ class GraphHelper:
                 ax.set_title(f"Laadcapaciteit wagenpark strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
                 ax.set_ylabel("Laadcapaciteit per dag (uur)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # change axes limits
                 ymax = max(charging_capacity_public) + max(charging_capacity_depot)
@@ -978,6 +995,7 @@ class GraphHelper:
                 ax.set_title(f"Laadcapaciteit per strategie {strategy.split('_')[1]}")
                 ax.set_xlabel("jaar")
                 ax.set_ylabel("Laadcapaciteit per dag (uur)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                 # change axes limits
                 ymax = max(charging_capacity_public) + max(charging_capacity_depot)
