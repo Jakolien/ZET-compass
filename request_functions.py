@@ -263,7 +263,7 @@ def get_encoded_excel_from_body(request: Request, company: str):
         validate(body, schema)
 
     # Decode base64 into temporary files
-    fleet_temp = base64_decode_file(body["fleet_data"])
+    fleet_temp = base64_decode_file(body["fleet_data"], file_extension=".xlsm")
     scenario_temp = base64_decode_file(body["scenario_data"])
 
     # Construct interfaces and get data
@@ -273,6 +273,14 @@ def get_encoded_excel_from_body(request: Request, company: str):
     scenarios_interface = ScenariosInterface(scenario_temp.name)
     scenarios = scenarios_interface.scenarios
     valid_scenario_names = scenarios_interface.valid_scenario_names
+
+    # Construct interfaces and get data
+    # fleet_interface = FleetInterface("Input", "C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\voorbeeldInput.xlsm")
+    # fleet = fleet_interface.fleet
+
+    # scenarios_interface = ScenariosInterface("C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\scenarios.xlsx")
+    # scenarios = scenarios_interface.scenarios
+    # valid_scenario_names = scenarios_interface.valid_scenario_names
 
     return {
         "fleet": fleet,
