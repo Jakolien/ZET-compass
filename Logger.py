@@ -1,86 +1,112 @@
 import sys
+import logging
 
-from datetime import datetime
-from logging import basicConfig, error, info, warning
 from os import makedirs
 from os.path import isdir
-from pytz import timezone, utc
 from traceback import format_exception
+from utility_functions import get_current_date_and_time
 
 
 class Logger:
+    """
+    A class used to log messages to a file.
+    Also logs Python exceptions.
+    """
 
-    def __init__(self, tz: str = utc, level: str = "WARNING"):
+    def __init__(self, timezone_string: str = "utc", level: str = "WARNING"):
+        """
+        Initialises a Logger.
 
-        """Initialises a Logger.
+        Initialises a Logger and sets the exception hook.
+        The Logger will log messages to a file in the logs directory.
+        The filename is the current date and time in the specified timezone.
 
-        :param tz: The timezone to be used.
-        :param level: The minimum level of messages to be logged. See the logging documentation for more information.
+        Parameters:
+            [optional] timezone_string (str): The timezone to be used.
+            Defaults to "utc".
+
+            [optional] level: The minimum level of messages to be logged. 
+            See the logging documentation for more information.
+            Defaults to "WARNING".
         """
 
-        # Check if logs directory exists
+        # Initialize the logs directory and set the exception hook
+        # The exception hook is used to log Python exceptions
+        self.initialize_logs_directory()
+        sys.excepthook = self.exception
+
+        # Get the current date and time in the specified timezone
+        now = get_current_date_and_time(timezone_string)
+        
+        # Initialize the logger
+        logging.basicConfig(
+            filename=f"logs/{now}.log",
+            filemode="w",
+            format="[%(asctime)s] %(levelname)s: %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+            level=level.upper()
+        )        
+
+    def initialize_logs_directory(self):
+        """
+        Initialize the logs directory
+
+        Check whether the logs directory exist.
+        If it doesn't exists, it's created.
+        """
+
+        # Check if logs directory exists, create it if not
         if not isdir("logs"):
             makedirs("logs")
 
-        # Format datetime string
-        current_timestamp = datetime.now(tz=timezone(tz))
-        datetime_string = current_timestamp.strftime("%Y-%m-%d_%H-%M-%S.%f")
-
-        basicConfig(filename=f"logs/{datetime_string}.log",
-                    filemode="w",
-                    format="[%(asctime)s] %(levelname)s: %(message)s",
-                    datefmt="%Y-%m-%d %H:%M:%S",
-                    level=level.upper())
-
-        sys.excepthook = self.exception
-
     def log(self, message: str):
+        """
+        Log an informative message.
 
-        """Log an informative message.
-
-        :param message: The message to log.
-
-        :return: Nothing
-        :rtype: None
+        Parameters:
+            message (str): The message to log.
         """
 
-        info(message)
+        # Log the message
+        logging.info(message)
 
     def warning(self, message: str):
+        """
+        Log an warning message.
 
-        """Log an warning message.
-
-        :param message: The warning to log.
-
-        :return: Nothing
-        :rtype: None
+        Parameters:
+            message (str): The warning to log.
         """
 
-        warning(message)
+        # Log the warning
+        logging.warning(message)
 
     def error(self, message: str):
+        """
+        Log an error message.
 
-        """Log an error message.
-
-        :param message: The error to log.
-
-        :return: Nothing
-        :rtype: None
+        Parameters:
+            message (str): The error to log.
         """
 
-        error(message)
+        # Log the error
+        logging.error(message)
 
-    def exception(self, exctype, value, tb):
+    def exception(self, exception_type, message, traceback):
+        """
+        Log a formatted Exception.
 
-        """Log a formatted Exception.
+        This function is used as the exception hook.
+        It logs the Exception to the log file.
 
-        :param exctype: The Exception type.
-        :param value: The Exception message.
-        :param tb: The traceback message.
-
-        :return: Nothing
-        :rtype: None
+        Parameters:
+            exception_type (any): The Exception type.
+            message (any): The Exception message.
+            traceback (any): The traceback message.
         """
 
-        lines = format_exception(exctype, value, tb)
+        # Format the Exception
+        lines = format_exception(exception_type, message, traceback)
+
+        # Log the Exception as an error
         self.error(lines)

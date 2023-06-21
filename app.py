@@ -10,7 +10,7 @@ from waitress import serve
 app = Flask(__name__)
 
 # Setup logger
-logger = Logger(tz="Europe/Amsterdam", level="WARNING")
+logger = Logger(timezone_string="Europe/Amsterdam")
 
 
 # Routes

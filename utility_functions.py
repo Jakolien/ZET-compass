@@ -1,66 +1,83 @@
 from base64 import b64decode, b64encode
-import base64
+from datetime import datetime
 from tempfile import NamedTemporaryFile
-from uu import decode
+from pytz import timezone
 
 
 def convert_dutch_string_to_boolean(string: str):
+    """
+    Convert the dutch 'ja' and 'nee' strings to a boolean.
 
-    """Converts a Dutch string, if possible, into a boolean.
+    Converts a Dutch string, if possible, into a boolean.
     Otherwise it returns the input string.
 
-    :param string: The string to convert.
-    :type string: str
+    Parameters:
+    string (str): The string to convert.
 
-    :return: The equivalent boolean or the original string.
-    :rtype: bool or str
+    Returns:
+        bool: The equivalent boolean
+        str: The original string.
     """
 
-    if string.lower() == "ja":
-        return True
+    # Check if string is a Dutch boolean 
+    # If so, return the equivalent boolean
+    if string.lower() in ["ja", "nee"]:
+        return string == "ja"
 
-    if string.lower() == "nee":
-        return False
-
-    # Return original string, if conversion isn't possible
+    # It is not, return the original string
     return string
 
 
 def convert_cooled_boolean(is_cooled: bool):
+    """
+    Converts the is_cooled boolean into a Dutch string.
 
-    """Converts the is_cooled boolean into a Dutch string.
+    Parameters:
+        is_cooled (bool): The boolean to convert.
 
-    :param is_cooled: The boolean to convert.
-    :type is_cooled: bool
-
-    :return: The equivalent string.
-    :rtype: str
+    Returns:
+        str: The equivalent string.
     """
 
-    if is_cooled:
-        return "gekoeld"
-    else:
-        return "niet gekoeld"
+    # Return the equivalent Dutch string
+    return "gekoeld" if is_cooled else "niet gekoeld"
+
+
+def get_current_date_and_time(timezone_string: str):
+    """
+    Get the current date and time in the specified timezone.
+
+    Parameters:
+        timezone_string (str): The timezone to be used.
+
+    Returns:
+        str: The current date and time in the specified timezone.
+    """
+
+    # Get current date and time and return it formatted
+    current_timestamp = datetime.now(tz=timezone(timezone_string))
+    return current_timestamp.strftime("%Y-%m-%d_%H-%M-%S.%f")
 
 
 def get_next_excel_column(current_column: str):
+    """
+    Get the next column name in an Excel spreadsheet.
 
-    """Get the next column name in an Excel spreadsheet.
+    Parameters:
+        current_column (str): The current column name.
 
-    :param current_column: The current column name.
-    :type: str
-
-    :return: The next column name.
-    :rtype: str
+    Returns:
+        str: The next column name.
     """
 
-    # Ensure current column name is in uppercase
+    # Ensure current column name is in uppercase and setup variables
     current_column = current_column.upper()
-
     increment_character = True
     next_column = []
-    for char in reversed(current_column):
 
+    # Loop through the characters in the current column name
+    # This checks whether the column name needs to be incremented
+    for char in reversed(current_column):
         if increment_character:
             if char == "Z":
                 next_column.append("A")
@@ -80,41 +97,40 @@ def get_next_excel_column(current_column: str):
 
 
 def base64_encode_file(file_path: str):
+    """
+    Encodes a file to a base 64 encoded string.
 
-    """Encodes a file to a base 64 encoded string.
+    Parameters:
+        file_path (str): The path to the file to convert.
 
-    :param file_path: The path to the file to convert.
-    :type file_path: str
-
-    :return: The encoded string.
-    :rtype: str
+    Returns:
+        str: The base 64 encoded string.
     """
 
+    # Open the file and encode it
     data = open(file_path, 'rb').read()
-    encoded = b64encode(data).decode("UTF-8")
-
-    return encoded
+    return b64encode(data).decode("UTF-8")
 
 
 def base64_decode_file(encoded_string: str, file_extension: str = ".xlsx"):
+    """
+    Decodes a base 64 encoded string into a temporary file.
 
-    """Decodes a base 64 encoded string into a temporary file.
+    Parameters:
+        encoded_string (str): The encoded string.
+        file_extension (str): The file extension of the temporary file.
 
-    :param encoded_string: The encoded string.
-    :type encoded_string: str
-    :param file_extension: The file extension of the temporary file.
-    :type file_extension: str
-
-    :return: The decoded temporary file.
-    :rtype: NamedTemporaryFile
+    Returns:
+        NamedTemporaryFile: The decoded temporary file.
     """
 
-    # Decode string
+    # Decode the data from the string
     decoded = b64decode(encoded_string)
 
-    # Create temporary file
+    # Create temporary file and write the data to it
     file = NamedTemporaryFile(suffix=file_extension, delete=False)
     file.write(decoded)
     file.seek(0)
 
+    # Return the temporary file
     return file
