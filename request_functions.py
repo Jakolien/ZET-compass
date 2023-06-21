@@ -263,7 +263,7 @@ def get_encoded_excel_from_body(request: Request, company: str):
         validate(body, schema)
 
     # Decode base64 into temporary files
-    fleet_temp = base64_decode_file(body["fleet_data"], file_extension=".xlsm")
+    fleet_temp = base64_decode_file(body["fleet_data"])
     scenario_temp = base64_decode_file(body["scenario_data"])
 
     # Construct interfaces and get data
