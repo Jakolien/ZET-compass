@@ -2,5 +2,10 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+# User-specific files
 /.vs
+/.idea
 /logs
+
+# Build results
+__pycache__/
