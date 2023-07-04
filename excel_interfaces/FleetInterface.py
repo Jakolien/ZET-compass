@@ -8,6 +8,8 @@ class FleetInterface(AbstractExcelInterface):
 
     fleet: dict = {}
 
+    print("fleet is empty now")
+
     def __init__(self, company: str, path_to_fleet_data: str):
 
         """Initialises an interface for a fleet data file.

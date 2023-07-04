@@ -321,39 +321,6 @@ class PANTEIAInterface(AbstractExcelInterface):
 
         self.set_cell_value(self.beleidsmakers_module_tab_name, "E32", 0)
 
-    def get_error_in_variable_costs(self, current_fuel_type: str):
-        if current_fuel_type.capitalize() == "Diesel":
-            error_in_brandstof = self.get_cell_value(self.ondernemers_module_tab_name, "B14")*self.get_cell_value(self.ondernemers_module_tab_name, "B65") -  self.get_cell_value(self.ondernemers_module_tab_name, "E65")
-            error_in_banden = self.get_cell_value(self.ondernemers_module_tab_name, "B14")*self.get_cell_value(self.ondernemers_module_tab_name, "B68") -  self.get_cell_value(self.ondernemers_module_tab_name, "E68")
-            error_in_onderhoud = self.get_cell_value(self.ondernemers_module_tab_name, "B14")*self.get_cell_value(self.ondernemers_module_tab_name, "B69") -  self.get_cell_value(self.ondernemers_module_tab_name, "E69")
-        else:
-            error_in_brandstof = self.get_cell_value(self.ondernemers_module_tab_name, "B14") * self.get_cell_value(self.ondernemers_module_tab_name, "B65") - self.get_cell_value(self.ondernemers_module_tab_name, "E65")
-            error_in_banden = self.get_cell_value(self.ondernemers_module_tab_name, "B14") * self.get_cell_value(self.ondernemers_module_tab_name, "B68") - self.get_cell_value(self.ondernemers_module_tab_name, "E68")
-            error_in_onderhoud = self.get_cell_value(self.ondernemers_module_tab_name, "B14") * self.get_cell_value(self.ondernemers_module_tab_name, "B69") - self.get_cell_value(self.ondernemers_module_tab_name, "E69")
-
-        return error_in_brandstof + error_in_banden + error_in_onderhoud
-
-    def get_error_in_total_costs(self, current_fuel_type: str):
-        return self.get_error_in_variable_costs(current_fuel_type) + self.get_error_in_driver_costs(current_fuel_type)
-
-    def get_error_in_co2_emissions(self, current_fuel_type: str, vehicle_index: int):
-        liters = self.get_cell_value(self.ondernemers_module_tab_name, "B14") * self.get_cell_value(self.model_parameters_tab_name, "I" + str(14 + vehicle_index)) / 1000
-
-        g_per_liters = self.get_cell_value(self.model_parameters_tab_name, "B" + str(77 + vehicle_index)) / 1000
-        gram_co2 = g_per_liters * liters
-        return gram_co2 - self.get_cell_value(self.ondernemers_module_tab_name, "E49")
-
-    def get_error_in_driver_costs(self, current_fuel_type: str):
-        if current_fuel_type.capitalize() == "Diesel":
-            error_in_uurloon = self.get_cell_value(self.ondernemers_module_tab_name, "B92") * self.get_cell_value(self.ondernemers_module_tab_name, "C28") - self.get_cell_value(self.ondernemers_module_tab_name, "E92")
-            error_in_verblijfskosten = self.get_cell_value(self.ondernemers_module_tab_name, "B93") * self.get_cell_value(self.ondernemers_module_tab_name, "C28") - self.get_cell_value(self.ondernemers_module_tab_name, "E93")
-            error_in_overig = self.get_cell_value(self.ondernemers_module_tab_name, "B94") * self.get_cell_value(self.ondernemers_module_tab_name, "C28") - self.get_cell_value(self.ondernemers_module_tab_name, "E94")
-        else:
-            error_in_uurloon = self.get_cell_value(self.ondernemers_module_tab_name, "B92")*self.get_cell_value(self.ondernemers_module_tab_name, "C28") -  self.get_cell_value(self.ondernemers_module_tab_name, "E92")
-            error_in_verblijfskosten = self.get_cell_value(self.ondernemers_module_tab_name, "B93")*self.get_cell_value(self.ondernemers_module_tab_name, "C28") -  self.get_cell_value(self.ondernemers_module_tab_name, "E93")
-            error_in_overig = self.get_cell_value(self.ondernemers_module_tab_name, "B94")*self.get_cell_value(self.ondernemers_module_tab_name, "C28") -  self.get_cell_value(self.ondernemers_module_tab_name, "E94")
-        return error_in_uurloon + error_in_verblijfskosten + error_in_overig
-
     def update_fixed_parameters(self,
                                 vehicle_lifespan: int,
                                 vehicle_index: int,
