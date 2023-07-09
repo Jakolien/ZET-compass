@@ -9,39 +9,58 @@ from waitress import serve
 # Create app
 app = Flask(__name__)
 
-# Setup logger 
-logger = Logger(timezone_string="Europe/Amsterdam")
-
-logger.error("test")
-quit()
-
-
 # Routes
 @app.route("/")
 def index():
+    """
+    Render the index page.
 
+    Returns:
+        str: The index page.
+    """
+
+    Logger.warning("Request: Index Page")
     return render_template("index.html")
 
 
 @app.route("/documentation")
 def documentation():
+    """
+    Render the documentation page
 
+    Returns:
+        str: The documentation page.
+    """
+
+    Logger.warning("Request: Documentation")
     return render_template("documentation.html")
 
 
 @app.route("/local_excel")
 def process_local_excel():
+    """
+    Process the local excel files and return the predictions
+
+    Returns:
+        str: The predictions.
+    """
+
+    # Log the request
+    Logger.warning("Request: Local Excel Analyses")
 
     # Read input
+    Logger.warning("Processing parameters")
     company = get_company_from_parameters(request)
     comparing = get_comparing_from_parameters(request)
     selected_scenarios = get_scenarios_from_parameters(request)
     selected_strategies = get_strategies_from_parameters(request)
     output = get_output_from_parameters(request)
 
+    Logger.warning("Processing fleet data")
     fleet_data = get_fleet_data_from_parameters(request, company)
     fleet = fleet_data["fleet"]
 
+    Logger.warning("Processing scenario data")
     scenario_data = get_scenario_data_from_parameters(request)
     scenarios = scenario_data["scenarios"]
     valid_scenario_names = scenario_data["scenario_names"]
@@ -53,8 +72,7 @@ def process_local_excel():
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
  
     # Return output
     output_format = request.args.get("output_format")
@@ -65,28 +83,31 @@ def process_local_excel():
 def process_external_excel():
 
     # Read input
+    Logger.warning("Processing parameters")
     company = get_company_from_parameters(request)
     comparing = get_comparing_from_parameters(request)
     selected_scenarios = get_scenarios_from_parameters(request)
     selected_strategies = get_strategies_from_parameters(request)
     output = get_output_from_parameters(request)
 
+    Logger.warning("Processing excel data")
     excel_data = get_encoded_excel_from_body(request, company)
     fleet = excel_data["fleet"]
     scenarios = excel_data["scenarios"]
     valid_scenario_names = excel_data["scenario_names"]
 
     # Process data
+    Logger.warning("Predicting")
     data = process_data(fleet,
                         scenarios,
                         valid_scenario_names,
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
 
     # Return output
+    Logger.warning("Outputting")
     output_format = request.args.get("output_format")
     return format_output(output_format, data)
 
@@ -112,8 +133,7 @@ def process_json_data():
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
 
     # Return output
     output_format = request.args.get("output_format")
@@ -159,6 +179,9 @@ def return_error_response(exception):
 
 
 if __name__ == "__main__":
+
+    # Setup logger 
+    Logger.initialize(timezone_string="Europe/Amsterdam", level="INFO")
 
     # Print running message
     print("Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
