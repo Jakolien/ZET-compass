@@ -40,12 +40,11 @@ class Logger:
         
         # Initialize the logger
         logging.basicConfig(
-            filename=f"logs/{now}.log",
-            filemode="w",
-            format="[%(asctime)s] %(levelname)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
-            level=level.upper()
-        )        
+            level=level.upper(), 
+            format="[%(asctime)s] %(levelname)s: %(message)s", 
+            handlers=[logging.FileHandler(filename=f"logs/{now}.log"), logging.StreamHandler()]
+        )
 
     def initialize_logs_directory(self):
         """

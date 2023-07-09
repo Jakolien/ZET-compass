@@ -9,8 +9,11 @@ from waitress import serve
 # Create app
 app = Flask(__name__)
 
-# Setup logger
+# Setup logger 
 logger = Logger(timezone_string="Europe/Amsterdam")
+
+logger.error("test")
+quit()
 
 
 # Routes
