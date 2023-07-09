@@ -13,7 +13,8 @@ class Logger:
     Also logs Python exceptions.
     """
 
-    def __init__(self, timezone_string: str = "utc", level: str = "WARNING"):
+    @classmethod
+    def initialize(cls, timezone_string: str = "utc", level: str = "WARNING"):
         """
         Initialises a Logger.
 
@@ -32,8 +33,8 @@ class Logger:
 
         # Initialize the logs directory and set the exception hook
         # The exception hook is used to log Python exceptions
-        self.initialize_logs_directory()
-        sys.excepthook = self.exception
+        cls.initialize_logs_directory()
+        sys.excepthook = cls.exception
 
         # Get the current date and time in the specified timezone
         now = get_current_date_and_time(timezone_string)
@@ -46,7 +47,8 @@ class Logger:
             handlers=[logging.FileHandler(filename=f"logs/{now}.log"), logging.StreamHandler()]
         )
 
-    def initialize_logs_directory(self):
+    @staticmethod
+    def initialize_logs_directory():
         """
         Initialize the logs directory
 
@@ -58,7 +60,8 @@ class Logger:
         if not isdir("logs"):
             makedirs("logs")
 
-    def log(self, message: str):
+    @staticmethod
+    def log(message: str):
         """
         Log an informative message.
 
@@ -69,7 +72,8 @@ class Logger:
         # Log the message
         logging.info(message)
 
-    def warning(self, message: str):
+    @staticmethod
+    def warning(message: str):
         """
         Log an warning message.
 
@@ -80,7 +84,8 @@ class Logger:
         # Log the warning
         logging.warning(message)
 
-    def error(self, message: str):
+    @staticmethod
+    def error(message: str):
         """
         Log an error message.
 
@@ -91,7 +96,8 @@ class Logger:
         # Log the error
         logging.error(message)
 
-    def exception(self, exception_type, message, traceback):
+    @classmethod
+    def exception(cls, exception_type, message, traceback):
         """
         Log a formatted Exception.
 
@@ -108,4 +114,4 @@ class Logger:
         lines = format_exception(exception_type, message, traceback)
 
         # Log the Exception as an error
-        self.error(lines)
+        cls.error(lines)
