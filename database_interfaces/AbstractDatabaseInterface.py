@@ -10,6 +10,7 @@ class AbstractDatabaseInterface:
     Implements:
         connect(): sqlite3.Cursor
         empty_table(): none
+        execute_query(): none
     """
 
     filename: str = None
@@ -67,21 +68,31 @@ class AbstractDatabaseInterface:
 
         Parameters:
             query (str): The query that should be executed.
+
+        Returns:
+            str: The result of the query.
+            list: A list of rows from the database.
         """
 
         # Connect to the database
         cursor = self.connect()
 
         # Empty the table
-        cursor.execute(query)
+        result = cursor.execute(query)
+
+        # Read the data if the query is a SELECT
+        if (query.startswith("SELECT")):
+            result = cursor.fetchall()
 
         # Disconnect from the database
         self.disconnect()
 
+        # Return the result
+        return result
+
     def empty_table(self, table:str):
         """
         Empties a table in the database.
-        Creates a connection, empties the table and disconnects.
 
         Parameters:
             table (str): The table that should be emptied.
@@ -91,12 +102,11 @@ class AbstractDatabaseInterface:
         Logger.warning(f"DATABASE: Emptying {table}")
 
         # Empty the table
-        self.execute(f"DELETE FROM {table}")
+        self.execute_query(f"DELETE FROM {table}")
 
     def insert(self, table:str, values:dict):
         """
         Inserts a row into a table in the database.
-        Creates a connection, inserts the row and disconnects.
 
         Parameters:
             table (str): The table that the row should be inserted into.
@@ -111,12 +121,11 @@ class AbstractDatabaseInterface:
         data = ", ".join([f"'{value}'" for value in values.values()])
 
         # Insert the row
-        self.execute(f"INSERT INTO {table} ({columns}) VALUES ({data})")
+        self.execute_query(f"INSERT INTO {table} ({columns}) VALUES ({data})")
 
     def read(self, table):
         """
         Reads all rows from a table in the database.
-        Creates a connection, reads the rows and disconnects.
 
         Parameters:
             table (str): The table that should be read from.
@@ -129,4 +138,24 @@ class AbstractDatabaseInterface:
         Logger.warning(f"DATABASE: Reading from {table}")
 
         # Read the rows
-        return self.execute(f"SELECT * FROM {table}")
+        return self.execute_queryv(f"SELECT * FROM {table}")
+
+    def read_with_join(self, table1:str, table2:str, key1:str="id", key2:str="id"):
+        """
+        Reads all the rows from two tables and combines them.
+
+        Parameters:
+            table1 (str): The first table that should be read from.
+            table2 (str): The second table that should be read from.
+            key1 (str): The key that should be used to join the first table, defaults to "id".
+            key2 (str): The key that should be used to join the second table, defaults to "id".
+
+        Returns:
+            list: A list of rows from the tables.
+        """
+
+        # Log the action
+        Logger.warning(f"DATABASE: Reading from {table1} and {table2}")
+
+        # Read the rows
+        return self.execute_query(f"SELECT * FROM {table1} JOIN {table2} ON {table1}.{key1} = {table2}.{key2}")
