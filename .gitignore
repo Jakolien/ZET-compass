@@ -9,3 +9,5 @@
 
 # Build results
 __pycache__/
+/data/.vs
+/data/logs
