@@ -1,3 +1,4 @@
+from database_interfaces.ScenarioDatabaseInterface import ScenarioDatabaseInterface
 from data_objects.Scenario import from_dict as scenario_from_dict
 from data_objects.Vehicle import from_dict as vehicle_from_dict
 from excel_interfaces.FleetInterface import FleetInterface
@@ -25,6 +26,8 @@ def get_company_from_parameters(request: Request):
     :rtype: str
     """
 
+    Logger.warning("Retrieving company from parameters")
+
     company = request.args.get("company")
     if company is None and \
        company != "":
@@ -44,6 +47,8 @@ def get_comparing_from_parameters(request: Request):
     :rtype: str
     """
 
+    Logger.warning("Retrieving comparing from parameters")
+
     comparing = request.args.get("comparing")
     if comparing not in ["strategies", "scenarios"]:
         comparing = "strategies"
@@ -61,6 +66,8 @@ def get_scenarios_from_parameters(request: Request):
     :return: The scenarios parameter.
     :rtype: tuple
     """
+
+    Logger.warning("Retrieving scenarios from parameters")
 
     scenarios = request.args.get("scenarios")
     if scenarios is not None and \
@@ -86,6 +93,8 @@ def get_strategies_from_parameters(request: Request):
     :rtype: tuple
     """
 
+    Logger.warning("Retrieving strategies from parameters")
+
     strategies = request.args.get("strategies")
     if strategies is not None and \
        strategies != "":
@@ -109,6 +118,8 @@ def get_output_from_parameters(request: Request):
     :return: A tuple with the valid outputs. Defaults to "graphs" and "results", if there are none.
     :rtype: tuple
     """
+
+    Logger.warning("Retrieving output from parameters")
 
     # Get output parameter and check for valid outputs
     output_parameter = request.args.get("output", "")
@@ -138,6 +149,8 @@ def get_fleet_data_from_parameters(request: Request, company: str):
     :rtype: dict
     """
 
+    Logger.warning("Retrieving fleet data from parameters")
+
     path_to_fleet_data = request.args.get("fleet_data")
     if path_to_fleet_data is None:
         path_to_fleet_data = "./input/wagenpark.xlsx"
@@ -162,6 +175,8 @@ def get_scenario_data_from_parameters(request: Request):
     :return: The scenario Excel data in dictionary format. Consists of: path, interface, scenarios, and scenario_names.
     :rtype: dict
     """
+
+    Logger.warning("Retrieving scenario data from parameters")
 
     path_to_scenario_data = request.args.get("scenario_data")
     if path_to_scenario_data is None:
@@ -193,6 +208,8 @@ def get_json_data_from_body(request: Request):
     :return: The JSON data in dictionary format. Consists of: fleet, scenarios, and scenario_names.
     :rtype: dict
     """
+
+    Logger.warning("Retrieving JSON data from body")
 
     # Get JSON data
     body = request.get_json()
@@ -245,6 +262,8 @@ def get_encoded_excel_from_body(request: Request, company: str):
     :rtype: dict
     """
 
+    Logger.warning("Retrieving encoded Excel files from body")
+
     # Get JSON data
     body = request.get_json(silent=True)
     if body is None:
@@ -263,24 +282,18 @@ def get_encoded_excel_from_body(request: Request, company: str):
         validate(body, schema)
 
     # Decode base64 into temporary files
+    Logger.warning("Decoding base64 data into temporary excel files")
     fleet_temp = base64_decode_file(body["fleet_data"])
-    scenario_temp = base64_decode_file(body["scenario_data"])
 
     # Construct interfaces and get data
+    Logger.warning("Constructing fleet data")
     fleet_interface = FleetInterface(company, fleet_temp.name)
     fleet = fleet_interface.fleet
 
-    scenarios_interface = ScenariosInterface(scenario_temp.name)
-    scenarios = scenarios_interface.scenarios
-    valid_scenario_names = scenarios_interface.valid_scenario_names
-
-    # Construct interfaces and get data
-    # fleet_interface = FleetInterface("Input", "C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\voorbeeldInput.xlsm")
-    # fleet = fleet_interface.fleet
-
-    # scenarios_interface = ScenariosInterface("C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\scenarios.xlsx")
-    # scenarios = scenarios_interface.scenarios
-    # valid_scenario_names = scenarios_interface.valid_scenario_names
+    Logger.warning("Reading scenario data from database")
+    scenario_db = ScenarioDatabaseInterface()
+    scenarios = scenario_db.read_all_scenario_data()
+    valid_scenario_names = ScenariosInterface.valid_scenario_names
 
     return {
         "fleet": fleet,
@@ -295,8 +308,7 @@ def process_data(fleet: dict,
                  output: tuple,
                  comparing: str,
                  selected_scenarios: tuple,
-                 selected_strategies: tuple,
-                 logger: Logger):
+                 selected_strategies: tuple):
 
     """Processes the input data using the TCO Model.
 
@@ -324,8 +336,10 @@ def process_data(fleet: dict,
     :rtype: dict
     """
 
+    Logger.warning("Processing data")
+
     # Initialise model
-    model = TCOModel(fleet, scenarios, valid_scenario_names, output, logger)
+    model = TCOModel(fleet, scenarios, valid_scenario_names, output)
 
     # Process data
     data: dict = {}
@@ -336,7 +350,7 @@ def process_data(fleet: dict,
         else:
             if len(selected_strategies) < 1:
                 selected_strategies = None
-            data = model.compare_strategies(selected_scenarios[0], logger, selected_strategies)
+            data = model.compare_strategies(selected_scenarios[0], selected_strategies)
 
     elif comparing == "scenarios":
         if len(selected_strategies) < 1:
@@ -344,13 +358,12 @@ def process_data(fleet: dict,
         else:
             if len(selected_scenarios) < 1:
                 selected_scenarios = None
-            data = model.compare_scenarios(selected_strategies[0], logger,  selected_scenarios)
+            data = model.compare_scenarios(selected_strategies[0],  selected_scenarios)
 
     return data
 
 
 def format_output(output_format: str, data: dict):
-
     """Format the model output.
 
     :param output_format: The format in which the results will be formatted.
@@ -363,6 +376,8 @@ def format_output(output_format: str, data: dict):
     :return: The results in the specified format.
     :rtype: str or Response
     """
+
+    Logger.warning("Formatting output")
 
     # Define accepted output formats
     output_formats = [
@@ -414,3 +429,4 @@ def format_output(output_format: str, data: dict):
 
     # Raise error, if output mode isn't supported
     raise OutputFormatIsNotSupported
+

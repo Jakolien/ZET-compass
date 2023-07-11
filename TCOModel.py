@@ -18,7 +18,6 @@ class TCOModel:
     fleet: dict = None
     scenarios: dict = None
     output: tuple = None
-    logger: Logger = None
 
     # Model constants
     extra_years_after_lifespan: int = None
@@ -35,7 +34,6 @@ class TCOModel:
                  scenarios: dict,
                  valid_scenario_names: tuple,
                  output: tuple,
-                 logger: Logger,
                  extra_years_after_lifespan: int = 3,
                  increase_factor_after_lifespan: float = 2,
                  transition_margin: float = 0.03,
@@ -79,7 +77,6 @@ class TCOModel:
         self.current_year = current_year
         self.final_year = final_year
         self.output = output
-        self.logger = logger
 
         self.valid_scenario_types = valid_scenario_names
         strategy_1 = Strategy1()
@@ -100,7 +97,7 @@ class TCOModel:
         self.fleet = fleet
         self.scenarios = scenarios
 
-    def compare_strategies(self, scenario_type: str, logger: Logger, strategy_names: tuple = None):
+    def compare_strategies(self, scenario_type: str, strategy_names: tuple = None):
 
         """Compare a list of strategies against a single scenario.
 
@@ -133,7 +130,7 @@ class TCOModel:
             strategies = self.valid_strategies
 
         # Calculate TCO for vehicles in fleet
-        fleet_TCO = {number_plate: self.calculate_TCO(vehicle, scenario, strategies, logger)
+        fleet_TCO = {number_plate: self.calculate_TCO(vehicle, scenario, strategies)
                      for number_plate, vehicle in self.fleet.items()}
 
         # Create graphs
@@ -201,7 +198,7 @@ class TCOModel:
 
         return self.format_data(data)
 
-    def compare_scenarios(self, strategy_name: str, logger: Logger, scenario_names: tuple):
+    def compare_scenarios(self, strategy_name: str, scenario_names: tuple):
 
         """Compare a list of scenario against a single strategy.
 
@@ -233,7 +230,7 @@ class TCOModel:
             scenarios = self.scenarios
 
         # Calculate TCO for vehicles in fleet
-        fleet_TCO = {number_plate: self.calculate_TCO(vehicle, scenarios, strategy, logger)
+        fleet_TCO = {number_plate: self.calculate_TCO(vehicle, scenarios, strategy)
                      for number_plate, vehicle in self.fleet.items()}
 
         # Create graphs dict
@@ -343,7 +340,7 @@ class TCOModel:
         else:
             raise OutputIsNotSupported
 
-    def calculate_TCO(self, vehicle: Vehicle, scenarios: dict, strategies: dict, logger: Logger):
+    def calculate_TCO(self, vehicle: Vehicle, scenarios: dict, strategies: dict):
 
         """Calculate the TCO values for a vehicle.
 
@@ -396,8 +393,7 @@ class TCOModel:
                                                             self.transition_margin,
                                                             self.tax_percentage,
                                                             self.current_year,
-                                                            self.final_year,
-                                                            self.logger)
+                                                            self.final_year)
 
                 # Reset lifespan values
                 self.PANTEIA_interface.reset_technological_lifespan()

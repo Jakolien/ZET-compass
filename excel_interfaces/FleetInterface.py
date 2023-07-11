@@ -32,7 +32,7 @@ class FleetInterface(AbstractExcelInterface):
         index = 2
         reading_fleet_data = True
         while reading_fleet_data:
-
+            
             number_plate = self.get_cell_value(company, f"A{index}")
 
             # If number plate is empty, stop searching
