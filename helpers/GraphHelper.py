@@ -749,18 +749,18 @@ class GraphHelper:
             year_labels = []
             for strategy, years in strategies.items():
 
-                    # Get emissions in 2030
-                    emissions_in_2030 = years[2030].get("CO2_emissions", 0)
+                # Get emissions in 2030
+                emissions_in_2030 = years[2030].get("CO2_emissions", 0)
 
-                    year_labels = years.keys()
-                    TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in years.items()]
+                year_labels = years.keys()
+                TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in years.items()]
 
-                    if emissions_in_2030 > emissions_goal:
-                        ax.plot(year_labels, TCO_emissions, linestyle="--",
-                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
-                    else:
-                        ax.plot(year_labels, TCO_emissions, linestyle="-",
-                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                if emissions_in_2030 > emissions_goal:
+                    ax.plot(year_labels, TCO_emissions, linestyle="--",
+                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                else:
+                    ax.plot(year_labels, TCO_emissions, linestyle="-",
+                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
                 # Plot reduction line
                 reduction_line_x = year_labels
@@ -820,18 +820,18 @@ class GraphHelper:
             year_labels = []
             for strategy, years in strategies.items():
 
-                    # Get emissions in 2030
-                    emissions_in_2030 = years[2030].get("CO2_emissions", 0)
+                # Get emissions in 2030
+                emissions_in_2030 = years[2030].get("CO2_emissions", 0)
 
-                    year_labels = years.keys()
-                    TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in years.items()]
+                year_labels = years.keys()
+                TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in years.items()]
 
-                    if emissions_in_2030 > emissions_goal:
-                        ax.plot(year_labels, TCO_emissions, linestyle="--",
-                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
-                    else:
-                        ax.plot(year_labels, TCO_emissions, linestyle="-",
-                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                if emissions_in_2030 > emissions_goal:
+                    ax.plot(year_labels, TCO_emissions, linestyle="--",
+                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                else:
+                    ax.plot(year_labels, TCO_emissions, linestyle="-",
+                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
                 # Plot reduction line
                 reduction_line_x = year_labels
@@ -971,19 +971,19 @@ class GraphHelper:
                 ax.set_ylabel("Laadbehoefte per dag (KWh)")
                 ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                    # change axes limits
-                    ymax = max(charging_capacity_public) + max(charging_capacity_depot)
-                    ax.set_ylim(bottom=0, top=ymax + 20)
+                # change axes limits
+                ymax = max(charging_capacity_public) + max(charging_capacity_depot)
+                ax.set_ylim(bottom=0, top=ymax + 20)
 
-                    # Set legend
-                    ax.legend(loc="best")
-                    # ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                # Set legend
+                ax.legend(loc="best")
+                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-                    # Encode graph
-                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
+                # Encode graph
+                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                    # Close figure
-                    close()
+                # Close figure
+                close()
 
         return graphs
 
