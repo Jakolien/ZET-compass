@@ -1,3 +1,4 @@
+from database_interfaces.ScenarioDatabaseInterface import ScenarioDatabaseInterface
 from data_objects.Scenario import from_dict as scenario_from_dict
 from data_objects.Vehicle import from_dict as vehicle_from_dict
 from excel_interfaces.FleetInterface import FleetInterface
@@ -283,25 +284,16 @@ def get_encoded_excel_from_body(request: Request, company: str):
     # Decode base64 into temporary files
     Logger.warning("Decoding base64 data into temporary excel files")
     fleet_temp = base64_decode_file(body["fleet_data"])
-    scenario_temp = base64_decode_file(body["scenario_data"])
 
     # Construct interfaces and get data
     Logger.warning("Constructing fleet data")
     fleet_interface = FleetInterface(company, fleet_temp.name)
     fleet = fleet_interface.fleet
 
-    Logger.warning("Constructing scenario data")
-    scenarios_interface = ScenariosInterface(scenario_temp.name)
-    scenarios = scenarios_interface.scenarios
-    valid_scenario_names = scenarios_interface.valid_scenario_names
-
-    # Construct interfaces and get data
-    # fleet_interface = FleetInterface("Input", "C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\voorbeeldInput.xlsm")
-    # fleet = fleet_interface.fleet
-
-    # scenarios_interface = ScenariosInterface("C:\\Users\\User\\Source\\Repos\\Jakolien\\ZET-compass\\input\\scenarios.xlsx")
-    # scenarios = scenarios_interface.scenarios
-    # valid_scenario_names = scenarios_interface.valid_scenario_names
+    Logger.warning("Reading scenario data from database")
+    scenario_db = ScenarioDatabaseInterface()
+    scenarios = scenario_db.read_all_scenario_data()
+    valid_scenario_names = ScenariosInterface.valid_scenario_names
 
     return {
         "fleet": fleet,
@@ -437,3 +429,4 @@ def format_output(output_format: str, data: dict):
 
     # Raise error, if output mode isn't supported
     raise OutputFormatIsNotSupported
+

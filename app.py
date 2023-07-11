@@ -181,7 +181,7 @@ def return_error_response(exception):
 if __name__ == "__main__":
 
     # Setup logger 
-    Logger.initialize(timezone_string="Europe/Amsterdam", level="INFO")
+    Logger.initialize(timezone_string="Europe/Amsterdam", level="WARNING")
 
     # Print running message
     print("Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
