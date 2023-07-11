@@ -3,11 +3,9 @@
 ################################################################################
 
 # User-specific files
-/.vs
-/.idea
-/logs
+.vs/
+.idea/
+logs/
 
 # Build results
 __pycache__/
-/data/.vs
-/data/logs
