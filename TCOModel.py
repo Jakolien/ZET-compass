@@ -140,11 +140,11 @@ class TCOModel:
         graph_helper = GraphHelper()
 
         # Create TCO graphs for every vehicle if 10 or less, but skip the first (example).
-        if len(fleet_TCO) < 11:
+        if 2 < len(fleet_TCO) < 11:
             vehicle_TCO = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -156,7 +156,7 @@ class TCOModel:
             vehicle_charging_capacity = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -167,7 +167,7 @@ class TCOModel:
             vehicle_charging_time = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -183,11 +183,12 @@ class TCOModel:
 
         # Create average fleet graphs
         graphs["TCO_total_bar"] = graph_helper.plot_TCO_fleet_averages_bar(fleet_TCO["sum"])
-        graphs["CO2_total_bar"] = graph_helper.plot_CO2_fleet_averages_bar(fleet_TCO["sum"])
         graphs["TCO_total_cost"] = graph_helper.plot_TCO_fleet_average_cost(fleet_TCO["sum"])
-        graphs["TCO_total_emissions"] = graph_helper.plot_TCO_fleet_average_emissions(fleet_TCO["sum"])
-        graphs["Capacity_total_bar"] = graph_helper.plot_TCO_fleet_average_charging_capacity(fleet_TCO["sum"])
         graphs["TCO_costs_breakdown"] = graph_helper.plot_TCO_costs_breakdown(fleet_TCO["sum"])
+        graphs["CO2_total_bar"] = graph_helper.plot_CO2_fleet_averages_bar(fleet_TCO["sum"])
+        graphs["CO2_total_emissions"] = graph_helper.plot_TCO_fleet_average_emissions(fleet_TCO["sum"])
+        graphs["Capacity_total_bar"] = graph_helper.plot_TCO_fleet_average_charging_capacity(fleet_TCO["sum"])
+        graphs["Charging_time_total_bar"] = graph_helper.plot_TCO_fleet_average_charging_time(fleet_TCO["sum"])
 
         # Add relevant data to data
         data = {
@@ -240,11 +241,11 @@ class TCOModel:
         graph_helper = GraphHelper()
 
         # Create TCO graphs for every vehicle if 10 or less but skip the first (example).
-        if len(fleet_TCO) < 11:
+        if 2 < len(fleet_TCO) < 11:
             vehicle_TCO = {}
             for number_plate in list(fleet_TCO.values())[1:]:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -256,7 +257,7 @@ class TCOModel:
             vehicle_charging_capacity = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -267,7 +268,7 @@ class TCOModel:
             vehicle_charging_time = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD":
+                if number_plate == "G258TD" or number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -283,11 +284,12 @@ class TCOModel:
 
         # Create fleet graphs
         graphs["TCO_total_bar"] = graph_helper.plot_TCO_fleet_averages_bar_scenarios(fleet_TCO["sum"])
-        graphs["CO2_total_bar"] = graph_helper.plot_CO2_fleet_averages_bar_scenarios(fleet_TCO["sum"])
         graphs["TCO_total_cost"] = graph_helper.plot_TCO_fleet_average_cost_scenarios(fleet_TCO["sum"])
-        graphs["TCO_total_emissions"] = graph_helper.plot_TCO_fleet_average_emissions_scenarios(fleet_TCO["sum"])
-        graphs["Capacity_total_bar"] = graph_helper.plot_TCO_fleet_average_charging_capacity_scenarios(fleet_TCO["sum"])
         graphs["TCO_costs_breakdown"] = graph_helper.plot_TCO_costs_breakdown(fleet_TCO["sum"])
+        graphs["CO2_total_bar"] = graph_helper.plot_CO2_fleet_averages_bar_scenarios(fleet_TCO["sum"])
+        graphs["CO2_total_emissions"] = graph_helper.plot_TCO_fleet_average_emissions_scenarios(fleet_TCO["sum"])
+        graphs["Capacity_total_bar"] = graph_helper.plot_TCO_fleet_average_charging_capacity_scenarios(fleet_TCO["sum"])
+
 
         # Add relevant data to data
         data = {
@@ -355,26 +357,9 @@ class TCOModel:
         :rtype: dict
         """
 
-        # Get vehicle age
-        vehicle_age = vehicle.get_current_age("Europe/Amsterdam")
-
-        # Get economical lifespan
-        lifespans = self.PANTEIA_interface.get_technological_lifespan()
-        electric_lifespan = lifespans.get("electric")
-        diesel_lifespan = lifespans.get("diesel")
-
-        if vehicle_age > diesel_lifespan:
-            print(f"Vehicle with number plate: {vehicle.number_plate} is {vehicle_age} years old. "
-                  f"That is older than the recommend lifespan of {diesel_lifespan}.")
-
-        if diesel_lifespan + self.extra_years_after_lifespan > 15:
-            print(f"Vehicle with number plate: {vehicle.number_plate} is {vehicle_age} years old. "
-                  f"That is older than 15 years, which is not recommended.")
-
         # Iterate over the different scenarios and strategies
         results = {}
         for scenario in scenarios:
-
             scenario_results = {}
             for strategy in strategies:
 
@@ -423,7 +408,7 @@ class TCOModel:
         # Get the sum for all the values
         for number_plate, scenarios in fleet_TCO.items():
 
-            if number_plate == "G258TD":
+            if number_plate == "G258TD" or number_plate == "voorbeeld":
                 continue
 
             for scenario, strategies in scenarios.items():
@@ -473,7 +458,7 @@ class TCOModel:
         # Get the sum for all the values
         for number_plate, scenarios in fleet_TCO.items():
 
-            if number_plate == "G258TD" or number_plate == "sum":
+            if number_plate == "G258TD" or number_plate == "sum" or number_plate == "voorbeeld":
                 continue
             if number_plate not in transition_year:
                 transition_year[number_plate] = {}

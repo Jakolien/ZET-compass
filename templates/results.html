@@ -3,75 +3,29 @@
 {% block title %}Resultaten{% endblock title %}
 
 {% block content %}
-    <h1 class="text-center">Resultaten</h1>
+    {% for scenario, graph in data["graphs"]["TCO_total_bar"].items() %}
+        <h1 class="text-center">Resultaten {{ scenario }} scenario</h1>
+    {% endfor %}
 
     {# Graphs #}
     {% if "graphs" in data %}
-        <h2 class="text-center">Grafieken</h2>
-
-        {% if "vehicle_TCO" in data["graphs"] %}
-            <h3 class="text-center">TCO van voertuigen</h3>
-            {% for number_plate, scenarios in data["graphs"]["vehicle_TCO"].items() %}
-                <h4>{{ number_plate }}</h4>
-                {% for scenario, graph in scenarios.items() %}
-                    <p>scenario {{ scenario }}:</p>
-                    <img src="data:image/png;base64,{{ graph }}"
-                         id="scenario-{{ scenario }}-tco-kosten-voertuig-{{ number_plate }}"
-                         alt="TCO grafieken van {{ number_plate }} voor {{ scenario }} scenario." />
-                {% endfor %}
-            {% endfor %}
-        {% endif %}
+        <h2 class="text-center">Kosten</h2>
 
         {% if "TCO_total_bar" in data["graphs"] %}
-            <h3 class="text-center">Totale TCO van wagenpark als staafgrafiek</h3>
+            <h3 class="text-center">Gemiddelde jaarlijkse TCO kosten over de komende 10 jaar van wagenpark</h3>
             {% for scenario, graph in data["graphs"]["TCO_total_bar"].items() %}
-                <p>scenario {{ scenario }}:</p>
                 <img src="data:image/png;base64,{{ graph }}"
                      id="scenario-{{ scenario }}-tco-kosten-staafdiagram"
                      alt="TCO grafieken van wagenpark voor {{ scenario }} scenario." />
             {% endfor %}
         {% endif %}
 
-        {% if "CO2_total_bar" in data["graphs"] %}
-            <h3 class="text-center">Totale TCO van wagenpark als staafgrafiek</h3>
-            {% for scenario, graph in data["graphs"]["CO2_total_bar"].items() %}
-                <p>scenario {{ scenario }}:</p>
-                <img src="data:image/png;base64,{{ graph }}"
-                     id="scenario-{{ scenario }}-co2-uitstoot-staafdiagram"
-                     alt="CO2 grafieken van wagenpark voor {{ scenario }} scenario." />
-            {% endfor %}
-        {% endif %}
-
         {% if "TCO_total_cost" in data["graphs"] %}
             <h3 class="text-center">TCO kosten van wagenpark als lijngrafiek</h3>
             {% for scenario, graph in data["graphs"]["TCO_total_cost"].items() %}
-                <p>scenario {{ scenario }}:</p>
                 <img src="data:image/png;base64,{{ graph }}"
                      id="scenario-{{ scenario }}-tco-kosten-lijndiagram"
                      alt="TCO kosten grafiek van wagenpark voor {{ scenario }} scenario." />
-            {% endfor %}
-        {% endif %}
-
-        {% if "TCO_total_emissions" in data["graphs"] %}
-            <h3 class="text-center">TCO uitstoot van wagenpark als lijngrafiek</h3>
-            {% for scenario, graph in data["graphs"]["TCO_total_emissions"].items() %}
-                <p>scenario {{ scenario }}:</p>
-                <img src="data:image/png;base64,{{ graph }}"
-                     id="scenario-{{ scenario }}-co2-uitstoot-lijndiagram"
-                     alt="TCO uitstoot grafiek van wagenpark voor {{ scenario }} scenario." />
-            {% endfor %}
-        {% endif %}
-
-        {% if "Capacity_total_bar" in data["graphs"] %}
-            <h3 class="text-center">Laadcapaciteit wagenpark</h3>
-            {% for scenario, strategies in data["graphs"]["Capacity_total_bar"].items() %}
-                {% for strategy, graph in strategies.items() %}
-                    <p>scenario {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>
-                    <img src="data:image/png;base64,{{ graph }}"
-                         id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadcapaciteit"
-                         alt="Laadcapaciteit wagenpark voor {{ scenario }}
-                         scenario en strategie {{ strategy.split('_')[1] }}." />
-                {% endfor %}
             {% endfor %}
         {% endif %}
 
@@ -79,7 +33,7 @@
             <h3 class="text-center">TCO kostenverdeling van wagenpark</h3>
             {% for scenario, strategies in data["graphs"]["TCO_costs_breakdown"].items() %}
                 {% for strategy, graph in strategies.items() %}
-                    <p>scenario {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>
+                    <p>strategie {{ strategy.split("_")[1] }}:</p>
                     <img src="data:image/png;base64,{{ graph }}"
                          id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-tco-kostenverdeling"
                          alt="TCO kostenverdeling grafiek van wagenpark voor {{ scenario }}
@@ -88,12 +42,71 @@
             {% endfor %}
         {% endif %}
 
+        {% if "vehicle_TCO" in data["graphs"] %}
+            <h3 class="text-center">TCO kosten per voertuig</h3>
+            {% for number_plate, scenarios in data["graphs"]["vehicle_TCO"].items() %}
+                <h4>{{ number_plate }}</h4>
+                {% for scenario, graph in scenarios.items() %}
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-tco-kosten-voertuig-{{ number_plate }}"
+                         alt="TCO grafieken van {{ number_plate }} voor {{ scenario }} scenario." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        <h2 class="text-center">Uitstoot</h2>
+
+        {% if "CO2_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Gemiddelde jaarlijkse CO2 uitstoot over de komende 10 jaar van wagenpark</h3>
+            {% for scenario, graph in data["graphs"]["CO2_total_bar"].items() %}
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-co2-uitstoot-staafdiagram"
+                     alt="CO2 grafieken van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        {% if "CO2_total_emissions" in data["graphs"] %}
+            <h3 class="text-center">CO2 uitstoot van wagenpark als lijngrafiek</h3>
+            {% for scenario, graph in data["graphs"]["CO2_total_emissions"].items() %}
+                <img src="data:image/png;base64,{{ graph }}"
+                     id="scenario-{{ scenario }}-co2-uitstoot-lijndiagram"
+                     alt="TCO uitstoot grafiek van wagenpark voor {{ scenario }} scenario." />
+            {% endfor %}
+        {% endif %}
+
+        <h2 class="text-center">Laden</h2>
+
+        {% if "Capacity_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Laadbehoefte per dag van wagenpark</h3>
+            {% for scenario, strategies in data["graphs"]["Capacity_total_bar"].items() %}
+                {% for strategy, graph in strategies.items() %}
+                    <p>strategie {{ strategy.split("_")[1] }}:</p>
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadcapaciteit"
+                         alt="Laadcapaciteit wagenpark voor {{ scenario }}
+                         scenario en strategie {{ strategy.split('_')[1] }}." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
+        {% if "Charging_time_total_bar" in data["graphs"] %}
+            <h3 class="text-center">Laadtijd per dag van wagenpark</h3>
+            {% for scenario, strategies in data["graphs"]["Charging_time_total_bar"].items() %}
+                {% for strategy, graph in strategies.items() %}
+                    <p>strategie {{ strategy.split("_")[1] }}:</p>
+                    <img src="data:image/png;base64,{{ graph }}"
+                         id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadtijd"
+                         alt="Laadtijd wagenpark voor {{ scenario }}
+                         scenario en strategie {{ strategy.split('_')[1] }}." />
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+
         {% if "vehicle_charging_capacity" in data["graphs"] %}
-            <h3 class="text-center">Laadbehoefte van voertuigen</h3>
+            <h3 class="text-center">Laadbehoefte per dag per voertuig</h3>
             {% for number_plate, scenarios in data["graphs"]["vehicle_charging_capacity"].items() %}
                 <h4>{{ number_plate }}</h4>
                 {% for scenario, strategies in scenarios.items() %}
-                    <p>scenario {{ scenario }}:</p>
                     {% for strategy, graph in strategies.items() %}
                         <img src="data:image/png;base64,{{ graph }}"
                              id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadbehoefte-voertuig-{{ number_plate }}"
@@ -105,11 +118,10 @@
         {% endif %}
 
         {% if "vehicle_charging_time" in data["graphs"] %}
-            <h3 class="text-center">Laadtijd van voertuigen</h3>
+            <h3 class="text-center">Laadtijd per dag per voertuig</h3>
             {% for number_plate, scenarios in data["graphs"]["vehicle_charging_time"].items() %}
                 <h4>{{ number_plate }}</h4>
                 {% for scenario, strategies in scenarios.items() %}
-                    <p>scenario {{ scenario }}:</p>
                     {% for strategy, graph in strategies.items() %}
                         <img src="data:image/png;base64,{{ graph }}"
                              id="scenario-{{ scenario }}-strategie-{{ strategy.split('_')[1] }}-laadtijd-voertuig-{{ number_plate }}"
@@ -128,7 +140,6 @@
 
         {% if "sum" in data["results"] %}
             <h3 class="text-center">Transitiejaar per voertuig</h3>
-            <p>scenario {{ scenario }}:</p>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -158,7 +169,7 @@
             <h3 class="text-center">Wagenpark totaal</h3>
             {% for scenario, strategies in data["results"]["sum"].items() %}
                 {% for strategy, years in strategies.items() %}
-                    <p>scenario {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>
+                    <p>strategie {{ strategy.split("_")[1] }}:</p>
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -188,7 +199,7 @@
 {#            <h4 class="text-center">Voertuig: {{ number_plate }}</h4>#}
 {#            {% for scenario, strategies in vehicle_results.items() %}#}
 {#                {% for strategy, years in strategies.items() %}#}
-{#                    <p>scenario {{ scenario }}, strategie {{ strategy.split("_")[1] }}:</p>#}
+{#                    <p>strategie {{ strategy.split("_")[1] }}:</p>#}
 {#                    <table class="table table-striped">#}
 {#                        <thead>#}
 {#                            <tr>#}

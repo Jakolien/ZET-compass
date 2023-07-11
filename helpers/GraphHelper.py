@@ -599,12 +599,14 @@ class GraphHelper:
 
         # The Netherlands has set the goal to reduce CO2 emission by 49% by 2030.
         reduction_by_2030 = 0.49
+        current_emissions = 0
         for scenario, strategies in averages.items():
             for strategy, years in strategies.items():  # [len(strategies)-2]:
                 # Get current emissions
                 current_timestamp = datetime.now()
                 current_year = int(current_timestamp.strftime("%Y"))
                 current_emissions = years[current_year].get("CO2_emissions", 0)
+
         # get emission goal for this company
         emissions_goal = (1 - reduction_by_2030) * current_emissions
 
@@ -662,6 +664,7 @@ class GraphHelper:
 
         # The Netherlands has set the goal to reduce CO2 emission by 49% by 2030.
         reduction_by_2030 = 0.49
+        current_emissions = 0
         for scenario, strategies in averages.items():
             for strategy, years in strategies.items():  # [len(strategies)-2]:
                 # Get current emissions
@@ -725,6 +728,7 @@ class GraphHelper:
 
         # The Netherlands has set the goal to reduce CO2 emission by 49% by 2030.
         reduction_by_2030 = 0.49
+        current_emissions = 0
         for scenario, strategies in averages.items():
             for strategy, years in strategies.items(): #[len(strategies)-2]:
                 # Get current emissions
@@ -741,10 +745,9 @@ class GraphHelper:
                 warnings.simplefilter("ignore")
                 graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-                # Plot strategies
-                year_labels = []
-                current_emissions = 0
-                for strategy, years in strategies.items():
+            # Plot strategies
+            year_labels = []
+            for strategy, years in strategies.items():
 
                     # Get emissions in 2030
                     emissions_in_2030 = years[2030].get("CO2_emissions", 0)
@@ -797,6 +800,7 @@ class GraphHelper:
 
         # The Netherlands has set the goal to reduce CO2 emission by 49% by 2030.
         reduction_by_2030 = 0.49
+        current_emissions = 0
         for scenario, strategies in averages.items():
             for strategy, years in strategies.items():  # [len(strategies)-2]:
                 # Get current emissions
@@ -812,10 +816,9 @@ class GraphHelper:
                 warnings.simplefilter("ignore")
                 graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-                # Plot strategies
-                year_labels = []
-                current_emissions = 0
-                for strategy, years in strategies.items():
+            # Plot strategies
+            year_labels = []
+            for strategy, years in strategies.items():
 
                     # Get emissions in 2030
                     emissions_in_2030 = years[2030].get("CO2_emissions", 0)
@@ -962,11 +965,11 @@ class GraphHelper:
                     ax.bar(year_labels, charging_capacity_depot, label="Op depot")
                     ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
 
-                    # Set labels
-                    ax.set_title(f"Laadcapaciteit wagenpark strategie {strategy.split('_')[1]}")
-                    ax.set_xlabel("jaar")
-                    ax.set_ylabel("Laadcapaciteit per dag (uur)")
-                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set labels
+                ax.set_title(f"Laadbehoefte wagenpark strategie {strategy.split('_')[1]}")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("Laadbehoefte per dag (KWh)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
                     # change axes limits
                     ymax = max(charging_capacity_public) + max(charging_capacity_depot)
@@ -981,6 +984,57 @@ class GraphHelper:
 
                     # Close figure
                     close()
+
+        return graphs
+
+    def plot_TCO_fleet_average_charging_time(self, averages: dict):
+
+        """Plots the average TCO fleet cost on a graph.
+
+        :param averages: The average TCO fleet data.
+        :type averages: dict
+
+        :return: The TCO fleet cost graphs as base 64 encoded string. Organised by scenario.
+        :rtype: dict
+        """
+
+        graphs = {}
+        for scenario, strategies in averages.items():
+
+            graphs[scenario] = {}
+
+            for strategy, years in strategies.items():
+
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+
+                year_labels = years.keys()
+                charging_time_depot = [year_data.get("charging_time_depot", 0) for year, year_data in
+                                           years.items()]
+                charging_time_public = [year_data.get("charging_time_public", 0) for year, year_data in
+                                            years.items()]
+
+                ax.bar(year_labels, charging_time_depot, label="Op depot")
+                ax.bar(year_labels, charging_time_public, label="Onderweg", bottom=charging_time_depot)
+
+                # Set labels
+                ax.set_title(f"Laadtijd wagenpark strategie {strategy.split('_')[1]}")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("Laadtijd per dag (uur)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+                # change axes limits
+                ymax = max(charging_time_public) + max(charging_time_depot)
+                ax.set_ylim(bottom=0, top=ymax + 20)
+
+                # Set legend
+                ax.legend(loc="best")
+                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+
+                # Encode graph
+                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
+
+                # Close figure
+                close()
 
         return graphs
 

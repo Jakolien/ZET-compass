@@ -99,8 +99,9 @@ class Strategy5(AbstractStrategy):
             is_optimal_mix_valid = PANTEIA_interface.is_optimal_mix_valid()
 
             # Determine if diesel vehicle needs to be changed for electric vehicle
-            if current_fuel_type.capitalize() in list_of_fossil_fuel_types and is_optimal_mix_valid and \
+            if current_fuel_type.capitalize() in list_of_fossil_fuel_types and is_optimal_mix_valid and vehicle.drives_in_future_ZE_zone and \
                     not self.is_allowed_in_ZE_zone(vehicle, current_vehicle_age, int(year)):
+
                 # Calculate residual debt
                 residual_debt = PANTEIA_interface.calculate_residual_debt(current_lifespan, current_vehicle_age)
 
