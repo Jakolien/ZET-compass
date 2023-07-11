@@ -1,5 +1,7 @@
 from base64 import b64decode, b64encode
+import base64
 from tempfile import NamedTemporaryFile
+from uu import decode
 
 
 def convert_dutch_string_to_boolean(string: str):
@@ -111,7 +113,7 @@ def base64_decode_file(encoded_string: str, file_extension: str = ".xlsx"):
     decoded = b64decode(encoded_string)
 
     # Create temporary file
-    file = NamedTemporaryFile(suffix=file_extension)
+    file = NamedTemporaryFile(suffix=file_extension, delete=False)
     file.write(decoded)
     file.seek(0)
 
