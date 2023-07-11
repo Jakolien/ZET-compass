@@ -556,6 +556,7 @@ class PANTEIAInterface(AbstractExcelInterface):
 
         # TODO Make new function to compute residual values
         # calculate residual debt
+        residual_debt = 0
         if 0 <= vehicle_age <= 15 and 0 <= lifespan <= 15:
             vehicle_price = self.get_cell_value(self.ondernemers_calc_tab_name, "I39")
             old_percentage_vehicle = self.get_cell_value(self.model_parameters_tab_name, "B" + str(58 + int(lifespan)))
