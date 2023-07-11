@@ -20,8 +20,7 @@ class Strategy2(AbstractStrategy):
                       transition_margin: float,
                       tax_percentage: float,
                       current_year: int,
-                      final_year: int,
-                      logger: Logger):
+                      final_year: int):
 
         """Calculates the TCO values according to the following logic:
         Switch to a new electric vehicle, if the current vehicle has been written off for five years
