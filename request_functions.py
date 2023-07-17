@@ -2,6 +2,7 @@ from database_interfaces.ScenarioDatabaseInterface import ScenarioDatabaseInterf
 from data_objects.Scenario import from_dict as scenario_from_dict
 from data_objects.Vehicle import from_dict as vehicle_from_dict
 from excel_interfaces.FleetInterface import FleetInterface
+from excel_interfaces.ScenariosInterface import ScenariosInterface
 from flask import make_response, render_template, Request
 from json import loads, dumps
 from jsonschema import validate
