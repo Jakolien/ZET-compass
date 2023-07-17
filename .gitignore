@@ -5,3 +5,7 @@
 /.vs
 /logs
 /database_interfaces/__pycache__
+/data_objects/__pycache__
+/excel_interfaces/__pycache__
+/helpers/__pycache__
+/__pycache__
