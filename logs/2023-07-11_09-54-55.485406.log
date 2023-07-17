@@ -1,0 +1,27 @@
+[2023-07-11 15:11:16] ERROR: Exception on /local_excel [GET]
+Traceback (most recent call last):
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\meer0084\OneDrive - HZ University of Applied Sciences\transport_kompas\app.py", line 39, in process_local_excel
+    fleet_data = get_fleet_data_from_parameters(request, company)
+  File "C:\Users\meer0084\OneDrive - HZ University of Applied Sciences\transport_kompas\request_functions.py", line 145, in get_fleet_data_from_parameters
+    fleet_interface = FleetInterface(company, path_to_fleet_data)
+  File "C:\Users\meer0084\OneDrive - HZ University of Applied Sciences\transport_kompas\excel_interfaces\FleetInterface.py", line 38, in __init__
+    number_plate = self.get_cell_value(company, f"A{index}")
+  File "C:\Users\meer0084\OneDrive - HZ University of Applied Sciences\transport_kompas\excel_interfaces\AbstractExcelInterface.py", line 45, in get_cell_value
+    return self.excel_model.evaluate(f"{sheet_name}!{cell_address}")
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\pycel\excelcompiler.py", line 854, in _evaluate_non_iterative
+    self._gen_graph(address)
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\pycel\excelcompiler.py", line 923, in _gen_graph
+    self._process_gen_graph()
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\pycel\excelcompiler.py", line 935, in _process_gen_graph
+    self._gen_graph(precedent_address, recursed=True)
+  File "C:\Users\meer0084\AppData\Local\anaconda3\envs\kompas\lib\site-packages\pycel\excelcompiler.py", line 912, in _gen_graph
+    raise NotImplementedError('Linked SheetNames')
+NotImplementedError: Linked SheetNames
