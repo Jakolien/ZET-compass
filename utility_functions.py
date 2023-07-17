@@ -96,6 +96,20 @@ def get_next_excel_column(current_column: str):
     return "".join(next_column)
 
 
+def parameter_string_to_tupled_list(parameter_string: str):
+    """
+    Converts a string of comma seperated values to a list inside a tuple.
+    Making the data read-only.
+
+    Parameters:
+        parameter_string (str): The string to convert.
+
+    Returns:
+        tuple: The converted tuple.
+    """
+    return tuple(parameter_string.split(','))
+
+
 def base64_encode_file(file_path: str):
     """
     Encodes a file to a base 64 encoded string.

@@ -21,6 +21,13 @@ class NoExcelFileFound(Exception):
         super().__init__("The specified excel file couldn't be found. Please check the path to the file.")
 
 
+class NoSchemaFileFound(Exception):
+
+    def __init__(self):
+
+        super().__init__("The specified schema file couldn't be found and is required. Please check the path to the file.")
+
+
 class NoFleetDataFound(Exception):
 
     def __init__(self):
