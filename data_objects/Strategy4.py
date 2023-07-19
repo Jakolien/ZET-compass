@@ -20,8 +20,7 @@ class Strategy4(AbstractStrategy):
                       transition_margin: float,
                       tax_percentage: float,
                       current_year: int,
-                      final_year: int,
-                      logger: Logger):
+                      final_year: int):
 
         """Calculates the TCO values according to the following logic:
         Switch to electric when TCO costs for electric are smaller than diesel and it's technologically possible.

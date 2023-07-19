@@ -1,284 +1,252 @@
+from database_interfaces.ScenarioDatabaseInterface import ScenarioDatabaseInterface
 from data_objects.Scenario import from_dict as scenario_from_dict
 from data_objects.Vehicle import from_dict as vehicle_from_dict
 from excel_interfaces.FleetInterface import FleetInterface
 from excel_interfaces.ScenariosInterface import ScenariosInterface
-from exceptions import NoCompanySpecified, NoScenarioSpecified, NoStrategySpecified, OutputFormatIsNotSupported, \
-                       RequestBodyInvalid
-from flask import make_response, render_template, Request, Response
+from flask import make_response, render_template, Request
 from json import loads, dumps
 from jsonschema import validate
 from Logger import Logger
 from TCOModel import TCOModel
-from utility_functions import base64_decode_file
+from utility_functions import parameter_string_to_tupled_list, base64_decode_file
+
+import exceptions as Exceptions
+import os
+
+
+def get_data_from_parameters(request: Request, parameter: str, on_not_valid: any=None, check: any=lambda x: True):
+    """
+    Get a parameter from the request URL parameters.
+
+    Parameters:
+        request (Request): The request.
+        data (str): The parameter to retrieve.
+        on_empty (str|Exception): The default value or exception to throw if the parameter is empty or not valid,
+            defaults to None; if None, the parameter will be returned as is.
+        check (Lambda): The function to call to check if the parameter is valid, defaults to lambda x: True.
+    Returns:
+        str: The parameter.
+        any: The result of the on_empty function.
+
+    Raises:
+        Exception: The on_empty parameter when provided and the parameter is empty.
+    """
+
+    # Log the action
+    Logger.warning(f"Retrieving {parameter} from parameters")
+    
+    # Get the data from the parameter
+    data = request.args.get(parameter)
+    
+    # Check if the data is empty and if the on_empty parameter is specified
+    if not (data and check(data)) and type(on_not_valid) in [Exception, str]:
+        # Raise the exception if the on_empty parameter or exis an exception
+        if type(on_not_valid) == Exception:
+            raise on_not_valid
+
+        # Execute the function if the on_empty parameter is a function
+        data = on_not_valid
+ 
+    # Return the data
+    return data
 
 
 def get_company_from_parameters(request: Request):
-
-    """Get the company parameter from the request URL parameters.
-
-    :param request: The request.
-    :type request: Request
-
-    :raise NoCompanySpecified: Raised if the parameter is not present or empty.
-
-    :return: The company parameter.
-    :rtype: str
     """
+    Get the company parameter from the request URL parameters.
 
-    company = request.args.get("company")
-    if company is None and \
-       company != "":
-        raise NoCompanySpecified
+    Parameters:
+        request (Request): The request.
 
-    return company
+    Returns:
+        str: The company parameter.
+
+    Raises:
+        NoCompanySpecified: The company parameter is not specified.
+    """
+     
+    return get_data_from_parameters(request, "company", Exceptions.NoCompanySpecified)
 
 
 def get_comparing_from_parameters(request: Request):
+    """
+    Get the comparing parameter from the request URL parameters.
+    Defaults to "strategies".
 
-    """Get the comparing parameter from the request URL parameters.
+    Parameters:
+        request (Request): The request.
 
-    :param request: The request.
-    :type request: Request
-
-    :return: The comparing parameter.
-    :rtype: str
+    Returns:
+        str: The comparing parameter.
     """
 
-    comparing = request.args.get("comparing")
-    if comparing not in ["strategies", "scenarios"]:
-        comparing = "strategies"
-
-    return comparing
+    return get_data_from_parameters(request, "comparing", "strategies", lambda x: x in ["strategies", "scenarios"])
 
 
 def get_scenarios_from_parameters(request: Request):
+    """
+    Get the scenarios parameter from the request URL parameters.
+    Defaults to [ ].
 
-    """Get the scenarios parameter from the request URL parameters.
+    Parameters:
+        request (Request): The request.
 
-    :param request: The request.
-    :type request: Request
-
-    :return: The scenarios parameter.
-    :rtype: tuple
+    Returns:
+        str: The scenarios parameter.
     """
 
-    scenarios = request.args.get("scenarios")
-    if scenarios is not None and \
-            scenarios != "":
-        scenarios = scenarios.split(",")
-    else:
-        scenarios = []
-
-    # Make list into read only tuple
-    scenarios = tuple(scenarios,)
-
-    return scenarios
+    data = get_data_from_parameters(request, "scenarios", "")
+    return parameter_string_to_tupled_list(data)
 
 
 def get_strategies_from_parameters(request: Request):
+    """
+    Get the strategies parameter from the request URL parameters.
+    Defaults to [ ].
 
-    """Get the strategies parameter from the request URL parameters.
+    Parameters:
+        request (Request): The request.
 
-    :param request: The request.
-    :type request: Request
-
-    :return: The strategies parameter.
-    :rtype: tuple
+    Returns:
+        str: The strategies parameter.
     """
 
-    strategies = request.args.get("strategies")
-    if strategies is not None and \
-       strategies != "":
-        strategies = strategies.split(",")
-    else:
-        strategies = []
-
-    # Make list into read only tuple
-    strategies = tuple(strategies,)
-
-    return strategies
+    data = get_data_from_parameters(request, "strategies", "")
+    return parameter_string_to_tupled_list(data)
 
 
 def get_output_from_parameters(request: Request):
+    """
+    Get the outputs from the request URL parameters.
+    Defaults to ["graphs", "results"].
 
-    """Get the outputs from the request URL parameters.
+    Parameters:
+    request (Request): The request.
 
-    :param request: The request.
-    :type request: Request
-
-    :return: A tuple with the valid outputs. Defaults to "graphs" and "results", if there are none.
-    :rtype: tuple
+    Returns:
+    str: The outputs parameter.
     """
 
-    # Get output parameter and check for valid outputs
-    output_parameter = request.args.get("output", "")
-    outputs = output_parameter.split(",")
-    actual_outputs = [output for output in outputs if output in ["graphs", "input", "results"]]
-
-    # If there are no valid outputs, default to graphs and table results
-    if len(actual_outputs) < 1:
-        actual_outputs = ["graphs", "results"]
-
-    # Turn list into tuple
-    actual_outputs = tuple(actual_outputs)
-
-    return actual_outputs
+    data_array = get_data_from_parameters(request, "output", "graphs,results").split(",")
+    actual_outputs = [output for output in data_array if output in ["graphs", "input", "results"]]
+    return actual_outputs if len(actual_outputs) > 0 else ["graphs", "results"]
 
 
 def get_fleet_data_from_parameters(request: Request, company: str):
 
-    """Get the fleet data from the request URL parameters.
+    """
+    Get the fleet data from the request URL parameters.
 
-    :param request: The request.
-    :type request: Request
-    :param company: The company to be used for the FleetInterface.
-    :type company: str
+    Parameters:
+        request (Request): The request.
+        company (str): The company to get the fleet data for.
 
-    :return: The scenario Excel data in dictionary format. Consists of: path, interface, and fleet.
-    :rtype: dict
+    Returns:
+        dict: The fleet data.
     """
 
-    path_to_fleet_data = request.args.get("fleet_data")
-    if path_to_fleet_data is None:
-        path_to_fleet_data = "./input/wagenpark.xlsx"
-
-    fleet_interface = FleetInterface(company, path_to_fleet_data)
-    fleet = fleet_interface.fleet
-
-    return {
-        "path": path_to_fleet_data,
-        "interface": fleet_interface,
-        "fleet": fleet
-    }
+    path_to_fleet_data = get_data_from_parameters(request, "fleet_data", f"./input/wagenpark.xlsx")
+    return FleetInterface(company, path_to_fleet_data).fleet
 
 
-def get_scenario_data_from_parameters(request: Request):
+def get_body(request: Request, error_on_empty: bool=True):
+    """
+    Get all data from the request body, formatted as json.
 
-    """Get the scenario data from the request URL parameters.
+    Parameters:
+        request (Request): The request.
+        error_on_empty (bool): Whether to raise an error if the body is empty, defaults to True.
 
-    :param request: The request.
-    :type request: Request
+    Returns:
+        dict: The data from the request body.
 
-    :return: The scenario Excel data in dictionary format. Consists of: path, interface, scenarios, and scenario_names.
-    :rtype: dict
+    Raises:
+        RequestBodyInvalid: Raised if the request body is empty.
     """
 
-    path_to_scenario_data = request.args.get("scenario_data")
-    if path_to_scenario_data is None:
-        path_to_scenario_data = "./input/scenarios.xlsx"
-
-    scenarios_interface = ScenariosInterface(path_to_scenario_data)
-    scenarios = scenarios_interface.scenarios
-    valid_scenario_names = scenarios_interface.valid_scenario_names
-
-    return {
-        "path": path_to_scenario_data,
-        "interface": scenarios_interface,
-        "scenarios": scenarios,
-        "scenario_names": valid_scenario_names
-    }
-
-
-def get_json_data_from_body(request: Request):
-
-    """Gets the JSON input data from the request body.
-
-    :param request: The request.
-    :type request: Request
-
-    :raise RequestBodyInvalid: Raised if the request body is not valid JSON.
-    :raise ValidationError: Raised if the request body does not match with the validation schema.
-        See the "validation_schemas" directory and the json schema documentation for more details.
-
-    :return: The JSON data in dictionary format. Consists of: fleet, scenarios, and scenario_names.
-    :rtype: dict
-    """
-
-    # Get JSON data
-    body = request.get_json()
-    if body is None:
-        raise RequestBodyInvalid
-
-    # Get validation schema
-    try:
-        with open("./validation_schemas/json_data.json", "r") as file:
-            schema = loads(file.read())
-    except:
-        schema = None
-
-    # Get and check data
-    # Skip checking if schema can't be found
-    if schema is not None:
-        validate(body, schema)
-
-    fleet = {number_plate: vehicle_from_dict(vehicle) for number_plate, vehicle in body["fleet"].items()}
-    scenarios = {scenario_name: {vehicle_type: scenario_from_dict(scenario_data)
-                                 for vehicle_type, scenario_data in vehicle_types.items()}
-                 for scenario_name, vehicle_types in body["scenarios"].items()}
-    valid_scenario_names = (
-        "laag",
-        "midden",
-        "hoog"
-    )
-
-    return {
-        "fleet": fleet,
-        "scenarios": scenarios,
-        "scenario_names": valid_scenario_names
-    }
-
-
-def get_encoded_excel_from_body(request: Request, company: str):
-
-    """Gets the encoded Excel files from the request body.
-
-    :param request: The request.
-    :type request: Request
-    :param company: The company to be used for the FleetInterface.
-    :type company: str
-
-    :raise RequestBodyInvalid: Raised if the request body is not valid JSON.
-    :raise ValidationError: Raised if the request body does not match with the validation schema.
-        See the "validation_schemas" directory and the json schema documentation for more details.
-
-    :return: The Excel data in dictionary format. Consists of: fleet, scenarios, and scenario_names.
-    :rtype: dict
-    """
-
-    # Get JSON data
+    # Get the data from the request
     body = request.get_json(silent=True)
-    if body is None:
-        raise RequestBodyInvalid
 
-    # Get validation schema
-    try:
-        with open("./validation_schemas/external_excel.json", "r") as file:
+    # Check if there is any data present
+    if body is None and error_on_empty:
+        raise Exceptions.RequestBodyInvalid
+    
+    # Return the data of the body
+    return body
+
+
+def validate_body_with_schema(schema: str, body: dict, strict: bool=False):
+    """
+    Check whether the request body is valid JSON and matches with the validation schema.
+
+    Parameters:
+        schema (str): The name of the validation schema to be used.
+        body (dict): The request body.
+        strict (bool): Whether to raise an error if the request body is empty, defaults to False.
+
+    Raises:
+        NoSchemaFileFound: Raised if the validation schema does not exist and strict-mode is used.
+    """
+
+    # Check whether the schema exists, open it if it does
+    if (os.path.exists(f"./validation_schemas/{schema}.json")):
+        with open(f"./validation_schemas/{schema}.json", "r") as file:
+            # Load the schema and validate the body
             schema = loads(file.read())
-    except:
-        schema = None
+            validate(body, schema)
 
-    # Get and check data
-    # Skip checking if schema can't be found
-    if schema is not None:
-        validate(body, schema)
+    # If the schema does not exist and strict is true, raise an error
+    elif strict:
+        raise Exceptions.NoSchemaFileFound
 
-    # Decode base64 into temporary files
-    fleet_temp = base64_decode_file(body["fleet_data"])
-    scenario_temp = base64_decode_file(body["scenario_data"])
 
-    # Construct interfaces and get data
-    fleet_interface = FleetInterface(company, fleet_temp.name)
-    fleet = fleet_interface.fleet
+def get_excel_fleet_data_from_body(request: Request, company: str):
+    """
+    Gets the encoded Excel file containing the fleet data from the request body.
 
-    scenarios_interface = ScenariosInterface(scenario_temp.name)
-    scenarios = scenarios_interface.scenarios
-    valid_scenario_names = scenarios_interface.valid_scenario_names
+    Parameters:
+        request (Request): The request.
+        company (str): The company to be used
 
-    return {
-        "fleet": fleet,
-        "scenarios": scenarios,
-        "scenario_names": valid_scenario_names
-    }
+    Returns:
+        array: The fleet data
+
+    Raises:
+        RequestBodyInvalid: Raised if the request body is not valid JSON.
+        ValidationError: Raised if the request body does not match with the validation schema.
+        
+        See the "validation_schemas" directory and the json schema documentation for more details.
+    """
+
+    # Log the beginnen of the operation
+    Logger.warning("Retrieving fleet data from provided Excel file")
+
+    # Get the JSON data from the body and the check the validation schema
+    body = get_body(request)
+    validate_body_with_schema("external_excel", body)
+
+    # Decode the base64 data into a temporary file and construct the fleet data
+    fleet_file = base64_decode_file(body["fleet_data"])
+    return FleetInterface(company, fleet_file.name).fleet
+
+
+def get_scenarios():
+    """
+    Gets the scenario data from the database.
+
+    Returns:
+        (dict, dict): The scenario data and the valid scenario names as a tuple
+    """
+
+    # Log the beginnen of the operation
+    Logger.warning("Retrieving scenario data from the database")
+
+    # Read the scenario data from the database
+    scenarios = ScenarioDatabaseInterface().read_all_scenario_data()
+    valid_scenario_names = ScenariosInterface.valid_scenario_names
+
+    # Return the scenario data and the valid scenario names as tuple
+    return (scenarios, valid_scenario_names)
 
 
 def process_data(fleet: dict,
@@ -287,8 +255,7 @@ def process_data(fleet: dict,
                  output: tuple,
                  comparing: str,
                  selected_scenarios: tuple,
-                 selected_strategies: tuple,
-                 logger: Logger):
+                 selected_strategies: tuple):
 
     """Processes the input data using the TCO Model.
 
@@ -316,33 +283,34 @@ def process_data(fleet: dict,
     :rtype: dict
     """
 
+    Logger.warning("Processing data")
+
     # Initialise model
-    model = TCOModel(fleet, scenarios, valid_scenario_names, output, logger)
+    model = TCOModel(fleet, scenarios, valid_scenario_names, output)
 
     # Process data
     data: dict = {}
 
     if comparing == "strategies":
         if len(selected_scenarios) < 1:
-            raise NoScenarioSpecified
+            raise Exceptions.NoScenarioSpecified
         else:
             if len(selected_strategies) < 1:
                 selected_strategies = None
-            data = model.compare_strategies(selected_scenarios[0], logger, selected_strategies)
+            data = model.compare_strategies(selected_scenarios[0], selected_strategies)
 
     elif comparing == "scenarios":
         if len(selected_strategies) < 1:
-            raise NoStrategySpecified
+            raise Exceptions.NoStrategySpecified
         else:
             if len(selected_scenarios) < 1:
                 selected_scenarios = None
-            data = model.compare_scenarios(selected_strategies[0], logger,  selected_scenarios)
+            data = model.compare_scenarios(selected_strategies[0],  selected_scenarios)
 
     return data
 
 
 def format_output(output_format: str, data: dict):
-
     """Format the model output.
 
     :param output_format: The format in which the results will be formatted.
@@ -355,6 +323,8 @@ def format_output(output_format: str, data: dict):
     :return: The results in the specified format.
     :rtype: str or Response
     """
+
+    Logger.warning("Formatting output")
 
     # Define accepted output formats
     output_formats = [
@@ -405,4 +375,4 @@ def format_output(output_format: str, data: dict):
         return make_response((stringified_json, 200, {"Content-Type": "application/json"}))
 
     # Raise error, if output mode isn't supported
-    raise OutputFormatIsNotSupported
+    raise Exceptions.OutputFormatIsNotSupported

@@ -21,6 +21,13 @@ class NoExcelFileFound(Exception):
         super().__init__("The specified excel file couldn't be found. Please check the path to the file.")
 
 
+class NoSchemaFileFound(Exception):
+
+    def __init__(self):
+
+        super().__init__("The specified schema file couldn't be found and is required. Please check the path to the file.")
+
+
 class NoFleetDataFound(Exception):
 
     def __init__(self):
@@ -98,3 +105,10 @@ class PANTEIAModelError(Exception):
     def __init__(self):
 
         super().__init__("Something went wrong with the PANTEIA model. Please check your input and the documentation.")
+
+
+class NoDatabaseFileFound(Exception):
+
+    def __init__(self):
+
+        super().__init__("The database file couldn't be found. Please check the path to the database file.")

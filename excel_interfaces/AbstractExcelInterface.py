@@ -1,3 +1,4 @@
+from typing import Union
 from exceptions import NoExcelFileFound, PANTEIAModelError
 from pycel import ExcelCompiler
 
@@ -28,7 +29,21 @@ class AbstractExcelInterface:
         except:
             raise NoExcelFileFound
 
-    def get_cell_value(self, sheet_name: str, cell_address: str):
+    def check_sheet_names(self, names: list):
+        """
+
+        """
+
+        for name in names:
+            try:
+                self.excel_model.evaluate(f"{name}!A1")
+                return name
+            except: 
+                continue
+
+        return None
+
+    def get_cell_value(self, sheet_name: str, cell_address: str, backup_sheet_name: str=None):
 
         """Gets the value of the specified cell.
 
@@ -41,10 +56,8 @@ class AbstractExcelInterface:
         :rtype: str
         """
 
-        #try:
+        # Return the cell address
         return self.excel_model.evaluate(f"{sheet_name}!{cell_address}")
-        #except:
-        #    raise PANTEIAModelError
 
     def set_cell_value(self, sheet_name: str, cell_address: str, value: any):
 

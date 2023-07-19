@@ -1,6 +1,7 @@
 from base64 import b64encode
 from datetime import datetime
 from io import BytesIO
+import warnings
 from matplotlib.pyplot import Figure, close, subplots
 from matplotlib import ticker
 
@@ -32,45 +33,47 @@ class GraphHelper:
 
         graphs = {}
         for scenario in vehicle_data:
-            strategies = vehicle_data[scenario]
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                strategies = vehicle_data[scenario]
 
-            graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
+                graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
 
-            # Plot strategies
+                # Plot strategies
 
-            line_index = 0
-            for strategy in strategies:
+                line_index = 0
+                for strategy in strategies:
 
-                strategy_data = strategies[strategy]
-                year_labels = strategy_data.keys()
-                ls = ['-', '--', '-.', ':', '--'][line_index % 5]
-                TCO_costs = [year_data.get("tco", 0) for year, year_data in strategy_data.items()]
-                TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in strategy_data.items()]
-                line_index += 1
+                    strategy_data = strategies[strategy]
+                    year_labels = strategy_data.keys()
+                    ls = ['-', '--', '-.', ':', '--'][line_index % 5]
+                    TCO_costs = [year_data.get("tco", 0) for year, year_data in strategy_data.items()]
+                    TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in strategy_data.items()]
+                    line_index += 1
 
-                axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
-                axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Strategie {strategy.split('_')[1]}")
+                    axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
+                    axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Strategie {strategy.split('_')[1]}")
 
-            # Set labels cost graph
-            axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
-            axes[0].set_xlabel("jaar")
-            axes[0].set_ylabel("TCO per jaar (euro)")
+                # Set labels cost graph
+                axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
+                axes[0].set_xlabel("jaar")
+                axes[0].set_ylabel("TCO per jaar (euro)")
 
-            # Set labels emissions graph
-            axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
-            axes[1].set_xlabel("jaar")
-            axes[1].set_ylabel("CO2 per jaar (ton)")
+                # Set labels emissions graph
+                axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
+                axes[1].set_xlabel("jaar")
+                axes[1].set_ylabel("CO2 per jaar (ton)")
 
-            # Set legend
-            axes[0].legend(loc="best")
-            axes[1].legend(loc="best")
-            #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+                # Set legend
+                axes[0].legend(loc="best")
+                axes[1].legend(loc="best")
+                #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -87,54 +90,57 @@ class GraphHelper:
         :rtype: dict
         """
 
-        scenarios = {}
-        graphs = {}
-        strategy = 'strategy_4'     # TODO change this to current strategy
-        for scenario in vehicle_data:
-            strategies = vehicle_data[scenario]
-            scenarios[scenario] = strategies[strategy]
-            graphs[scenario] = {}
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
-        graphs = {}
-        graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
+            scenarios = {}
+            graphs = {}
+            strategy = 'strategy_4'     # TODO change this to current strategy
+            for scenario in vehicle_data:
+                strategies = vehicle_data[scenario]
+                scenarios[scenario] = strategies[strategy]
+                graphs[scenario] = {}
 
-        # Plot scenarios
+            graphs = {}
+            graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
 
-        line_index = 0
-        for scenario in scenarios:
+            # Plot scenarios
 
-            scenario_data = scenarios[scenario]
-            year_labels = scenario_data.keys()
-            ls = ['--', '-.', ':'][line_index % 3]
-            TCO_costs = [year_data.get("tco", 0) for year, year_data in scenario_data.items()]
-            TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in scenario_data.items()]
-            line_index += 1
+            line_index = 0
+            for scenario in scenarios:
 
-            axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
-            axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Scenario {scenario}")
+                scenario_data = scenarios[scenario]
+                year_labels = scenario_data.keys()
+                ls = ['--', '-.', ':'][line_index % 3]
+                TCO_costs = [year_data.get("tco", 0) for year, year_data in scenario_data.items()]
+                TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in scenario_data.items()]
+                line_index += 1
 
-        # Set labels cost graph
-        axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
-        axes[0].set_xlabel("jaar")
-        axes[0].set_ylabel("TCO per jaar (euro)")
-        axes[0].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
+                axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Scenario {scenario}")
 
-        # Set labels emissions graph
-        axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
-        axes[1].set_xlabel("jaar")
-        axes[1].set_ylabel("CO2 per jaar (ton)")
-        axes[1].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+            # Set labels cost graph
+            axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
+            axes[0].set_xlabel("jaar")
+            axes[0].set_ylabel("TCO per jaar (euro)")
+            axes[0].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-        # Set legend
-        axes[0].legend(loc="best")
-        axes[1].legend(loc="best")
-        #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+            # Set labels emissions graph
+            axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
+            axes[1].set_xlabel("jaar")
+            axes[1].set_ylabel("CO2 per jaar (ton)")
+            axes[1].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-        # Encode graph
-        graphs[strategy] = self.encode_graph_to_base64(graph)
+            # Set legend
+            axes[0].legend(loc="best")
+            axes[1].legend(loc="best")
+            #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
 
-        # Close figure
-        close()
+            # Encode graph
+            graphs[strategy] = self.encode_graph_to_base64(graph)
+
+            # Close figure
+            close()
 
         return graphs
 
@@ -159,38 +165,40 @@ class GraphHelper:
 
             # Plot strategies
             for strategy in strategies:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
 
-                graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
+                    graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
 
-                strategy_data = strategies[strategy]
-                year_labels = strategy_data.keys()
-                charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0)
-                                           for year, year_data in strategy_data.items()]
-                charging_capacity_public = [year_data.get("kWh_charged_in_public", 0)
-                                            for year, year_data in strategy_data.items()]
+                    strategy_data = strategies[strategy]
+                    year_labels = strategy_data.keys()
+                    charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0)
+                                               for year, year_data in strategy_data.items()]
+                    charging_capacity_public = [year_data.get("kWh_charged_in_public", 0)
+                                                for year, year_data in strategy_data.items()]
 
-                ax.bar(year_labels, charging_capacity_depot, label="Op depot")
-                ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
+                    ax.bar(year_labels, charging_capacity_depot, label="Op depot")
+                    ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
 
-                # Set labels
-                ax.set_title(f"Laadbehoefte {number_plate} strategie {strategy.split('_')[1]}")
-                ax.set_xlabel("jaar")
-                ax.set_ylabel("Energievraag per dag (kWh)")
-                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                    # Set labels
+                    ax.set_title(f"Laadbehoefte {number_plate} strategie {strategy.split('_')[1]}")
+                    ax.set_xlabel("jaar")
+                    ax.set_ylabel("Energievraag per dag (kWh)")
+                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                # change axes limits
-                ymax = max(charging_capacity_public) + max(charging_capacity_depot)
-                ax.set_ylim(bottom=0, top=ymax + 20)
+                    # change axes limits
+                    ymax = max(charging_capacity_public) + max(charging_capacity_depot)
+                    ax.set_ylim(bottom=0, top=ymax + 20)
 
-                # Set legend
-                ax.legend(loc="best")
-                #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                    # Set legend
+                    ax.legend(loc="best")
+                    #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-                # Encode graph
-                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
+                    # Encode graph
+                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                # Close figure
-                close()
+                    # Close figure
+                    close()
 
         return graphs
 
@@ -219,38 +227,39 @@ class GraphHelper:
 
         # Plot strategies
         for scenario in scenarios:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
 
-            graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
+                scenario_data = scenarios[scenario]
+                year_labels = scenario_data.keys()
+                charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0)
+                                            for year, year_data in scenario_data.items()]
+                charging_capacity_public = [year_data.get("kWh_charged_in_public", 0)
+                                            for year, year_data in scenario_data.items()]
 
-            scenario_data = scenarios[scenario]
-            year_labels = scenario_data.keys()
-            charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0)
-                                       for year, year_data in scenario_data.items()]
-            charging_capacity_public = [year_data.get("kWh_charged_in_public", 0)
-                                        for year, year_data in scenario_data.items()]
+                ax.bar(year_labels, charging_capacity_depot, label="Op depot")
+                ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
 
-            ax.bar(year_labels, charging_capacity_depot, label="Op depot")
-            ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
+                # Set labels
+                ax.set_title(f"Laadbehoefte {number_plate} scenario {scenario}")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("Energievraag per dag (kWh)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels
-            ax.set_title(f"Laadbehoefte {number_plate} scenario {scenario}")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("Energievraag per dag (kWh)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # change axes limits
+                ymax = max(charging_capacity_public) + max(charging_capacity_depot)
+                ax.set_ylim(bottom=0, top=ymax + 20)
 
-            # change axes limits
-            ymax = max(charging_capacity_public) + max(charging_capacity_depot)
-            ax.set_ylim(bottom=0, top=ymax + 20)
+                # Set legend
+                ax.legend(loc="best")
+                #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-            # Set legend
-            ax.legend(loc="best")
-            #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                # Encode graph
+                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -275,38 +284,39 @@ class GraphHelper:
 
             # Plot strategies
             for strategy in strategies:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
 
-                graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
+                    strategy_data = strategies[strategy]
+                    year_labels = strategy_data.keys()
+                    charging_time_depot = [year_data.get("charging_time_depot", 0)
+                                            for year, year_data in strategy_data.items()]
+                    charging_time_public = [year_data.get("charging_time_public", 0)
+                                            for year, year_data in strategy_data.items()]
 
-                strategy_data = strategies[strategy]
-                year_labels = strategy_data.keys()
-                charging_time_depot = [year_data.get("charging_time_depot", 0)
-                                       for year, year_data in strategy_data.items()]
-                charging_time_public = [year_data.get("charging_time_public", 0)
-                                        for year, year_data in strategy_data.items()]
+                    ax.bar(year_labels, charging_time_depot, label="Op depot")
+                    ax.bar(year_labels, charging_time_public, label="Onderweg", bottom=charging_time_depot)
 
-                ax.bar(year_labels, charging_time_depot, label="Op depot")
-                ax.bar(year_labels, charging_time_public, label="Onderweg", bottom=charging_time_depot)
+                    # Set labels
+                    ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
+                    ax.set_xlabel("jaar")
+                    ax.set_ylabel("Laadtijd per dag (uur)")
+                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                # Set labels
-                ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
-                ax.set_xlabel("jaar")
-                ax.set_ylabel("Laadtijd per dag (uur)")
-                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                    # change axes limits
+                    ymax = max(charging_time_public) + max(charging_time_depot)
+                    ax.set_ylim(bottom=0, top=ymax + 2)
 
-                # change axes limits
-                ymax = max(charging_time_public) + max(charging_time_depot)
-                ax.set_ylim(bottom=0, top=ymax + 2)
+                    # Set legend
+                    ax.legend(loc="best")
+                    #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-                # Set legend
-                ax.legend(loc="best")
-                #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                    # Encode graph
+                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                # Encode graph
-                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
-
-                # Close figure
-                close()
+                    # Close figure
+                    close()
 
         return graphs
 
@@ -332,38 +342,39 @@ class GraphHelper:
 
             # Plot strategies
             for strategy in strategies:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
 
-                graph, ax = subplots(figsize=(6, 6), nrows=1, ncols=1, tight_layout=True)
+                    strategy_data = strategies[strategy]
+                    year_labels = strategy_data.keys()
+                    charging_time_depot = [year_data.get("charging_time_depot", 0)
+                                            for year, year_data in strategy_data.items()]
+                    charging_time_public = [year_data.get("charging_time_public", 0)
+                                            for year, year_data in strategy_data.items()]
 
-                strategy_data = strategies[strategy]
-                year_labels = strategy_data.keys()
-                charging_time_depot = [year_data.get("charging_time_depot", 0)
-                                       for year, year_data in strategy_data.items()]
-                charging_time_public = [year_data.get("charging_time_public", 0)
-                                        for year, year_data in strategy_data.items()]
+                    ax.bar(year_labels, charging_time_depot, label="Op depot")
+                    ax.bar(year_labels, charging_time_public, label="Onderweg", bottom=charging_time_depot)
 
-                ax.bar(year_labels, charging_time_depot, label="Op depot")
-                ax.bar(year_labels, charging_time_public, label="Onderweg", bottom=charging_time_depot)
+                    # Set labels
+                    ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
+                    ax.set_xlabel("jaar")
+                    ax.set_ylabel("Laadtijd per dag (uur)")
+                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                # Set labels
-                ax.set_title(f"Laadtijd {number_plate} strategie {strategy.split('_')[1]}")
-                ax.set_xlabel("jaar")
-                ax.set_ylabel("Laadtijd per dag (uur)")
-                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                    # change axes limits
+                    ymax = max(charging_time_public) + max(charging_time_depot)
+                    ax.set_ylim(bottom=0, top=ymax + 2)
 
-                # change axes limits
-                ymax = max(charging_time_public) + max(charging_time_depot)
-                ax.set_ylim(bottom=0, top=ymax + 2)
+                    # Set legend
+                    ax.legend(loc="best")
+                    #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-                # Set legend
-                ax.legend(loc="best")
-                #ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                    # Encode graph
+                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                # Encode graph
-                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
-
-                # Close figure
-                close()
+                    # Close figure
+                    close()
 
         return graphs
 
@@ -380,43 +391,44 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
+                TCO_cost_averages = []
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
-            strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
-            TCO_cost_averages = []
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    strategy_TCO_cost_average = 0
 
-                strategy_TCO_cost_average = 0
+                    for year in years:
 
-                for year in years:
+                        strategy_TCO_cost_average += years[year].get("tco", 0)
 
-                    strategy_TCO_cost_average += years[year].get("tco", 0)
+                    # Calculate average
+                    strategy_TCO_cost_average /= len(years)
+                    TCO_cost_averages.append(strategy_TCO_cost_average)
 
-                # Calculate average
-                strategy_TCO_cost_average /= len(years)
-                TCO_cost_averages.append(strategy_TCO_cost_average)
+                # Plot bar graph
+                ax.bar(strategy_labels, TCO_cost_averages, color="red")
 
-            # Plot bar graph
-            ax.bar(strategy_labels, TCO_cost_averages, color="red")
+                # change axes limits
+                ymin = min(TCO_cost_averages)
+                ymax = max(TCO_cost_averages)
+                ax.set_ylim(bottom=ymin - 2000, top=ymax + 2000)
 
-            # change axes limits
-            ymin = min(TCO_cost_averages)
-            ymax = max(TCO_cost_averages)
-            ax.set_ylim(bottom=ymin - 2000, top=ymax + 2000)
+                # Set labels cost graph
+                ax.set_title(f"Totale jaarlijkse kosten wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("TCO per jaar (euro)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels cost graph
-            ax.set_title(f"Totale jaarlijkse kosten wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("TCO per jaar (euro)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -433,38 +445,39 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
+                TCO_emissions_averages = []
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
-            strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
-            TCO_emissions_averages = []
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    strategy_TCO_emissions_average = 0
 
-                strategy_TCO_emissions_average = 0
+                    for year in years:
 
-                for year in years:
+                        strategy_TCO_emissions_average += years[year].get("CO2_emissions", 0)
 
-                    strategy_TCO_emissions_average += years[year].get("CO2_emissions", 0)
+                    # Calculate average
+                    strategy_TCO_emissions_average /= len(years)
+                    TCO_emissions_averages.append(strategy_TCO_emissions_average)
 
-                # Calculate average
-                strategy_TCO_emissions_average /= len(years)
-                TCO_emissions_averages.append(strategy_TCO_emissions_average)
+                # Plot bar graph
+                ax.bar(strategy_labels, TCO_emissions_averages, color="blue")
 
-            # Plot bar graph
-            ax.bar(strategy_labels, TCO_emissions_averages, color="blue")
+                # Set labels emissions graph
+                ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("CO2 per jaar (ton)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels emissions graph
-            ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("CO2 per jaar (ton)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -482,43 +495,44 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
+                TCO_cost_averages = []
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
-            strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
-            TCO_cost_averages = []
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    strategy_TCO_cost_average = 0
 
-                strategy_TCO_cost_average = 0
+                    for year in years:
 
-                for year in years:
+                        strategy_TCO_cost_average += years[year].get("tco", 0)
 
-                    strategy_TCO_cost_average += years[year].get("tco", 0)
+                    # Calculate average
+                    strategy_TCO_cost_average /= len(years)
+                    TCO_cost_averages.append(strategy_TCO_cost_average)
 
-                # Calculate average
-                strategy_TCO_cost_average /= len(years)
-                TCO_cost_averages.append(strategy_TCO_cost_average)
+                # Plot bar graph
+                ax.bar(strategy_labels, TCO_cost_averages, color="red")
 
-            # Plot bar graph
-            ax.bar(strategy_labels, TCO_cost_averages, color="red")
+                # change axes limits
+                ymin = min(TCO_cost_averages)
+                ymax = max(TCO_cost_averages)
+                ax.set_ylim(bottom=ymin - 2000, top=ymax + 2000)
 
-            # change axes limits
-            ymin = min(TCO_cost_averages)
-            ymax = max(TCO_cost_averages)
-            ax.set_ylim(bottom=ymin - 2000, top=ymax + 2000)
+                # Set labels cost graph
+                ax.set_title(f"Totale jaarlijkse kosten wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("TCO per jaar (euro)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels cost graph
-            ax.set_title(f"Totale jaarlijkse kosten wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("TCO per jaar (euro)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -536,38 +550,39 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
+                TCO_emissions_averages = []
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
-            strategy_labels = [f"Strategie {strategy.split('_')[1]}" for strategy in strategies.keys()]
-            TCO_emissions_averages = []
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    strategy_TCO_emissions_average = 0
 
-                strategy_TCO_emissions_average = 0
+                    for year in years:
 
-                for year in years:
+                        strategy_TCO_emissions_average += years[year].get("CO2_emissions", 0)
 
-                    strategy_TCO_emissions_average += years[year].get("CO2_emissions", 0)
+                    # Calculate average
+                    strategy_TCO_emissions_average /= len(years)
+                    TCO_emissions_averages.append(strategy_TCO_emissions_average)
 
-                # Calculate average
-                strategy_TCO_emissions_average /= len(years)
-                TCO_emissions_averages.append(strategy_TCO_emissions_average)
+                # Plot bar graph
+                ax.bar(strategy_labels, TCO_emissions_averages, color="blue")
 
-            # Plot bar graph
-            ax.bar(strategy_labels, TCO_emissions_averages, color="blue")
+                # Set labels emissions graph
+                ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("CO2 per jaar (ton)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels emissions graph
-            ax.set_title(f"Totale jaarlijkse uitstoot wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("CO2 per jaar (ton)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -597,40 +612,41 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    # Get emissions in 2030
+                    emissions_in_2030 = years[2030].get("CO2_emissions", 0)
 
-                # Get emissions in 2030
-                emissions_in_2030 = years[2030].get("CO2_emissions", 0)
+                    year_labels = years.keys()
+                    TCO_costs = [year_data.get("tco", 0) for year, year_data in years.items()]
 
-                year_labels = years.keys()
-                TCO_costs = [year_data.get("tco", 0) for year, year_data in years.items()]
+                    if emissions_in_2030 < emissions_goal:
+                        ax.plot(year_labels, TCO_costs, linestyle="-",
+                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                    else:
+                        ax.plot(year_labels, TCO_costs, linestyle="--",
+                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
-                if emissions_in_2030 < emissions_goal:
-                    ax.plot(year_labels, TCO_costs, linestyle="-",
-                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
-                else:
-                    ax.plot(year_labels, TCO_costs, linestyle="--",
-                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                # Set labels
+                ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("TCO per jaar (euro)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels
-            ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("TCO per jaar (euro)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set legend
+                #ax.legend(loc="best")
+                ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
 
-            # Set legend
-            #ax.legend(loc="best")
-            ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -660,40 +676,41 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                # Plot strategies
+                for strategy, years in strategies.items():
 
-            # Plot strategies
-            for strategy, years in strategies.items():
+                    # Get emissions in 2030
+                    emissions_in_2030 = years[2030].get("CO2_emissions", 0)
 
-                # Get emissions in 2030
-                emissions_in_2030 = years[2030].get("CO2_emissions", 0)
+                    year_labels = years.keys()
+                    TCO_costs = [year_data.get("tco", 0) for year, year_data in years.items()]
 
-                year_labels = years.keys()
-                TCO_costs = [year_data.get("tco", 0) for year, year_data in years.items()]
+                    if emissions_in_2030 > emissions_goal:
+                        ax.plot(year_labels, TCO_costs, linestyle="--",
+                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                    else:
+                        ax.plot(year_labels, TCO_costs, linestyle="-",
+                                label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
-                if emissions_in_2030 > emissions_goal:
-                    ax.plot(year_labels, TCO_costs, linestyle="--",
-                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
-                else:
-                    ax.plot(year_labels, TCO_costs, linestyle="-",
-                            label=f"TCO kosten strategie {strategy.split('_')[1]}")
+                # Set labels
+                ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("TCO per jaar (euro)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels
-            ax.set_title(f"Jaarlijkse voertuigkosten wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("TCO per jaar (euro)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set legend
+                #ax.legend(loc="best")
+                ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
 
-            # Set legend
-            #ax.legend(loc="best")
-            ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -724,8 +741,9 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
-
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
             # Plot strategies
             year_labels = []
@@ -744,27 +762,27 @@ class GraphHelper:
                     ax.plot(year_labels, TCO_emissions, linestyle="-",
                             label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
-            # Plot reduction line
-            reduction_line_x = year_labels
-            reduction_line_y = [emissions_goal for year in year_labels]
-            ax.plot(reduction_line_x, reduction_line_y, linestyle="--", color="black",
-                    label=f"{reduction_by_2030 * 100}% reductie")
+                # Plot reduction line
+                reduction_line_x = year_labels
+                reduction_line_y = [emissions_goal for year in year_labels]
+                ax.plot(reduction_line_x, reduction_line_y, linestyle="--", color="black",
+                        label=f"{reduction_by_2030 * 100}% reductie")
 
-            # Set labels
-            ax.set_title(f"Jaarlijkse uitstoot wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("CO2 per jaar (ton)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set labels
+                ax.set_title(f"Jaarlijkse uitstoot wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("CO2 per jaar (ton)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set legend
-            #ax.legend(loc="best")
-            ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
+                # Set legend
+                #ax.legend(loc="best")
+                ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -794,8 +812,9 @@ class GraphHelper:
 
         graphs = {}
         for scenario, strategies in averages.items():
-
-            graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
             # Plot strategies
             year_labels = []
@@ -814,27 +833,27 @@ class GraphHelper:
                     ax.plot(year_labels, TCO_emissions, linestyle="-",
                             label=f"TCO kosten strategie {strategy.split('_')[1]}")
 
-            # Plot reduction line
-            reduction_line_x = year_labels
-            reduction_line_y = [(1 - reduction_by_2030) * current_emissions for year in year_labels]
-            ax.plot(reduction_line_x, reduction_line_y, linestyle="--", color="black",
-                    label=f"{reduction_by_2030 * 100}% reductie")
+                # Plot reduction line
+                reduction_line_x = year_labels
+                reduction_line_y = [(1 - reduction_by_2030) * current_emissions for year in year_labels]
+                ax.plot(reduction_line_x, reduction_line_y, linestyle="--", color="black",
+                        label=f"{reduction_by_2030 * 100}% reductie")
 
-            # Set labels
-            ax.set_title(f"Jaarlijkse uitstoot wagenpark")
-            ax.set_xlabel("jaar")
-            ax.set_ylabel("CO2 per jaar (ton)")
-            ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set labels
+                ax.set_title(f"Jaarlijkse uitstoot wagenpark")
+                ax.set_xlabel("jaar")
+                ax.set_ylabel("CO2 per jaar (ton)")
+                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set legend
-            #ax.legend(loc="best")
-            ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
+                # Set legend
+                #ax.legend(loc="best")
+                ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
 
-            # Encode graph
-            graphs[scenario] = self.encode_graph_to_base64(graph)
+                # Encode graph
+                graphs[scenario] = self.encode_graph_to_base64(graph)
 
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
@@ -855,63 +874,64 @@ class GraphHelper:
             graphs[scenario] = {}
 
             for strategy, years in strategies.items():
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                    year_labels = years.keys()
+                    fixed_vehicle_costs = [year_data.get("fixed_vehicle_costs", 0) for year, year_data in years.items()]
+                    variable_vehicle_costs = [year_data.get("variable_vehicle_costs", 0)
+                                              for year, year_data in years.items()]
+                    write_off_costs_vehicle = [year_data.get("write_off_costs_vehicle", 0)
+                                               for year, year_data in years.items()]
+                    write_off_costs_charging_system = [year_data.get("write_off_costs_charging_system", 0)
+                                                       for year, year_data in years.items()]
+                    driver_costs = [year_data.get("driver_costs", 0) for year, year_data in years.items()]
+                    costs_public_charging = [year_data.get("costs_public_charging", 0)
+                                             for year, year_data in years.items()]
+                    current_y_positions = fixed_vehicle_costs
 
-                year_labels = years.keys()
-                fixed_vehicle_costs = [year_data.get("fixed_vehicle_costs", 0) for year, year_data in years.items()]
-                variable_vehicle_costs = [year_data.get("variable_vehicle_costs", 0)
-                                          for year, year_data in years.items()]
-                write_off_costs_vehicle = [year_data.get("write_off_costs_vehicle", 0)
-                                           for year, year_data in years.items()]
-                write_off_costs_charging_system = [year_data.get("write_off_costs_charging_system", 0)
-                                                   for year, year_data in years.items()]
-                driver_costs = [year_data.get("driver_costs", 0) for year, year_data in years.items()]
-                costs_public_charging = [year_data.get("costs_public_charging", 0)
-                                         for year, year_data in years.items()]
-                current_y_positions = fixed_vehicle_costs
+                    # Plot bars
+                    ax.bar(year_labels, fixed_vehicle_costs,
+                           width=0.4, label="a: Vaste voertuigkosten")
 
-                # Plot bars
-                ax.bar(year_labels, fixed_vehicle_costs,
-                       width=0.4, label="a: Vaste voertuigkosten")
+                    ax.bar(year_labels, variable_vehicle_costs, bottom=current_y_positions,
+                           width=0.4, label="b: Variabele voertuigkosten")
+                    current_y_positions = [current_y_positions[index] + value
+                                           for index, value in enumerate(variable_vehicle_costs)]
 
-                ax.bar(year_labels, variable_vehicle_costs, bottom=current_y_positions,
-                       width=0.4, label="b: Variabele voertuigkosten")
-                current_y_positions = [current_y_positions[index] + value
-                                       for index, value in enumerate(variable_vehicle_costs)]
+                    ax.bar(year_labels, write_off_costs_vehicle, bottom=current_y_positions,
+                           width=0.4, label="c: Afschrijvingskosten")
+                    current_y_positions = [current_y_positions[index] + value
+                                           for index, value in enumerate(write_off_costs_vehicle)]
 
-                ax.bar(year_labels, write_off_costs_vehicle, bottom=current_y_positions,
-                       width=0.4, label="c: Afschrijvingskosten")
-                current_y_positions = [current_y_positions[index] + value
-                                       for index, value in enumerate(write_off_costs_vehicle)]
+                    ax.bar(year_labels, write_off_costs_charging_system, bottom=current_y_positions,
+                           width=0.4, label="d: Afschrijvingskosten oplaadsysteem")
+                    current_y_positions = [current_y_positions[index] + value
+                                           for index, value in enumerate(write_off_costs_charging_system)]
 
-                ax.bar(year_labels, write_off_costs_charging_system, bottom=current_y_positions,
-                       width=0.4, label="d: Afschrijvingskosten oplaadsysteem")
-                current_y_positions = [current_y_positions[index] + value
-                                       for index, value in enumerate(write_off_costs_charging_system)]
+                    ax.bar(year_labels, driver_costs, bottom=current_y_positions,
+                           width=0.4, label="e: Chauffeurskosten")
+                    current_y_positions = [current_y_positions[index] + value
+                                           for index, value in enumerate(driver_costs)]
 
-                ax.bar(year_labels, driver_costs, bottom=current_y_positions,
-                       width=0.4, label="e: Chauffeurskosten")
-                current_y_positions = [current_y_positions[index] + value
-                                       for index, value in enumerate(driver_costs)]
+                    ax.bar(year_labels, costs_public_charging, bottom=current_y_positions,
+                           width=0.4, label="f: Kosten laadtijd onderweg")
 
-                ax.bar(year_labels, costs_public_charging, bottom=current_y_positions,
-                       width=0.4, label="f: Kosten laadtijd onderweg")
+                    # Set labels
+                    ax.set_title(f"TCO totale kostenverdeling wagenpark strategie {strategy.split('_')[1]}")
+                    ax.set_xlabel("jaar")
+                    ax.set_ylabel("TCO per jaar (euro)")
+                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                # Set labels
-                ax.set_title(f"TCO totale kostenverdeling wagenpark strategie {strategy.split('_')[1]}")
-                ax.set_xlabel("jaar")
-                ax.set_ylabel("TCO per jaar (euro)")
-                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                    # Set legend
+                    ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
 
-                # Set legend
-                ax.legend(loc="upper center", bbox_to_anchor=(0, -0.2, 1, 0.1))
+                    # Encode graph
+                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                # Encode graph
-                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
-
-                # Close figure
-                close()
+                    # Close figure
+                    close()
 
         return graphs
 
@@ -932,17 +952,18 @@ class GraphHelper:
             graphs[scenario] = {}
 
             for strategy, years in strategies.items():
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                    year_labels = years.keys()
+                    charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0) for year, year_data in
+                                               years.items()]
+                    charging_capacity_public = [year_data.get("kWh_charged_in_public", 0) for year, year_data in
+                                                years.items()]
 
-                year_labels = years.keys()
-                charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0) for year, year_data in
-                                           years.items()]
-                charging_capacity_public = [year_data.get("kWh_charged_in_public", 0) for year, year_data in
-                                            years.items()]
-
-                ax.bar(year_labels, charging_capacity_depot, label="Op depot")
-                ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
+                    ax.bar(year_labels, charging_capacity_depot, label="Op depot")
+                    ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
 
                 # Set labels
                 ax.set_title(f"Laadbehoefte wagenpark strategie {strategy.split('_')[1]}")
@@ -1035,35 +1056,36 @@ class GraphHelper:
             graphs[scenario] = {}
 
             for strategy, years in strategies.items():
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
 
-                graph, ax = subplots(figsize=(8, 8), nrows=1, ncols=1, tight_layout=True)
+                    year_labels = years.keys()
+                    charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0) for year, year_data in years.items()]
+                    charging_capacity_public = [year_data.get("kWh_charged_in_public", 0) for year, year_data in years.items()]
 
-                year_labels = years.keys()
-                charging_capacity_depot = [year_data.get("kWh_charged_on_depot", 0) for year, year_data in years.items()]
-                charging_capacity_public = [year_data.get("kWh_charged_in_public", 0) for year, year_data in years.items()]
+                    ax.bar(year_labels, charging_capacity_depot, label="Op depot")
+                    ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
 
-                ax.bar(year_labels, charging_capacity_depot, label="Op depot")
-                ax.bar(year_labels, charging_capacity_public, label="Onderweg", bottom=charging_capacity_depot)
+                    # Set labels
+                    ax.set_title(f"Laadcapaciteit per strategie {strategy.split('_')[1]}")
+                    ax.set_xlabel("jaar")
+                    ax.set_ylabel("Laadcapaciteit per dag (uur)")
+                    ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                # Set labels
-                ax.set_title(f"Laadcapaciteit per strategie {strategy.split('_')[1]}")
-                ax.set_xlabel("jaar")
-                ax.set_ylabel("Laadcapaciteit per dag (uur)")
-                ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                    # change axes limits
+                    ymax = max(charging_capacity_public) + max(charging_capacity_depot)
+                    ax.set_ylim(bottom=0, top=ymax + 20)
 
-                # change axes limits
-                ymax = max(charging_capacity_public) + max(charging_capacity_depot)
-                ax.set_ylim(bottom=0, top=ymax + 20)
+                    # Set legend
+                    ax.legend(loc="best")
+                    # ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
 
-                # Set legend
-                ax.legend(loc="best")
-                # ax.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3))
+                    # Encode graph
+                    graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
 
-                # Encode graph
-                graphs[scenario][strategy] = self.encode_graph_to_base64(graph)
-
-                # Close figure
-                close()
+                    # Close figure
+                    close()
 
         return graphs
 

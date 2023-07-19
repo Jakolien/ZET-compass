@@ -25,17 +25,20 @@ class FleetInterface(AbstractExcelInterface):
         :rtype: FleetInterface
         """
 
+
         try:
             super().__init__(path_to_fleet_data)
         except NoExcelFileFound:
             raise NoFleetDataFound
 
+        sheet_name = self.check_sheet_names([company, "Input wagenpark", "Input"])
+
         # Read fleet data
         index = 2
         reading_fleet_data = True
         while reading_fleet_data:
-
-            number_plate = self.get_cell_value(company, f"A{index}")
+            
+            number_plate = self.get_cell_value(sheet_name, f"A{index}")
 
             # If number plate is empty, stop searching
             if number_plate is None:
@@ -44,22 +47,22 @@ class FleetInterface(AbstractExcelInterface):
 
             vehicle_types = ['Kleine bestelwagen', 'Medium bestelwagen','Medium luxe bestelwagen','Grote bestelwagen','Kleine bakwagen (12t)','Grote bakwagen (18t)','Trekker-oplegger']
 
-            vehicle_type = self.get_cell_value(company, f"B{index}")
+            vehicle_type = self.get_cell_value(sheet_name, f"B{index}")
             category = vehicle_types.index(vehicle_type)
-            fuel_type = self.get_cell_value(company, f"C{index}")
-            euronorm = self.get_cell_value (company, f"D{index}")
-            year_of_purchase = self.get_cell_value(company, f"E{index}")
-            is_cooled = convert_dutch_string_to_boolean(self.get_cell_value(company, f"F{index}"))
-            PTO_fuel_consumption = self.get_cell_value(company, f"G{index}")
-            expected_total_distance_traveled_in_km = self.get_cell_value(company, f"H{index}")
-            maximum_daily_distance_in_km = self.get_cell_value(company, f"I{index}")
-            amount_of_operational_days = self.get_cell_value(company, f"J{index}")
-            drives_in_future_ZE_zone = convert_dutch_string_to_boolean(self.get_cell_value(company, f"K{index}"))
-            technological_lifespan = self.get_cell_value(company, f"L{index}")
-            loading_times = self.get_cell_value(company, f"M{index}")
-            charging_time_depot = self.get_cell_value(company, f"N{index}")
-            charging_time_public = self.get_cell_value(company, f"O{index}")
-            electricity_type = self.get_cell_value(company, f"P{index}")
+            fuel_type = self.get_cell_value(sheet_name, f"C{index}")
+            euronorm = self.get_cell_value (sheet_name, f"D{index}")
+            year_of_purchase = self.get_cell_value(sheet_name, f"E{index}")
+            is_cooled = convert_dutch_string_to_boolean(self.get_cell_value(sheet_name, f"F{index}"))
+            PTO_fuel_consumption = self.get_cell_value(sheet_name, f"G{index}")
+            expected_total_distance_traveled_in_km = self.get_cell_value(sheet_name, f"H{index}")
+            maximum_daily_distance_in_km = self.get_cell_value(sheet_name, f"I{index}")
+            amount_of_operational_days = self.get_cell_value(sheet_name, f"J{index}")
+            drives_in_future_ZE_zone = convert_dutch_string_to_boolean(self.get_cell_value(sheet_name, f"K{index}"))
+            technological_lifespan = self.get_cell_value(sheet_name, f"L{index}")
+            loading_times = self.get_cell_value(sheet_name, f"M{index}")
+            charging_time_depot = self.get_cell_value(sheet_name, f"N{index}")
+            charging_time_public = self.get_cell_value(sheet_name, f"O{index}")
+            electricity_type = self.get_cell_value(sheet_name, f"P{index}")
 
             # Add vehicle to fleet
             vehicle = Vehicle(number_plate,

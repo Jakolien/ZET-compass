@@ -16,8 +16,7 @@ class AbstractStrategy:
                       PANTEIA_interface: PANTEIAInterface,
                       extra_years_after_lifespan: int,
                       increase_factor_after_lifespan: float,
-                      transition_margin: float,
-                      logger: Logger):
+                      transition_margin: float):
 
         """Calculates the TCO values according to the following logic:
         {Strategy description here}

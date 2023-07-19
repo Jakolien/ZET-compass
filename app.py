@@ -1,120 +1,139 @@
 from Logger import Logger
 from flask import Flask, render_template, request, Response
-from request_functions import format_output, get_company_from_parameters, get_comparing_from_parameters, \
-                              get_encoded_excel_from_body, get_fleet_data_from_parameters, get_json_data_from_body,\
-                              get_output_from_parameters, get_scenario_data_from_parameters, \
-                              get_scenarios_from_parameters, get_strategies_from_parameters, process_data
 from waitress import serve
+
+import request_functions as helper
 
 # Create app
 app = Flask(__name__)
 
-# Setup logger
-logger = Logger(tz="Europe/Amsterdam", level="WARNING")
-
-
 # Routes
 @app.route("/")
 def index():
+    """
+    Render the index page.
 
+    Returns:
+        str: The index page.
+    """
+
+    Logger.warning("Request: Index Page")
     return render_template("index.html")
 
 
 @app.route("/documentation")
 def documentation():
+    """
+    Render the documentation page
 
+    Returns:
+        str: The documentation page.
+    """
+
+    Logger.warning("Request: Documentation")
     return render_template("documentation.html")
 
 
 @app.route("/local_excel")
 def process_local_excel():
+    """
+    Process the local excel files and return the predictions
+
+    Returns:
+        str: The predictions.
+    """
+
+    # Log the request
+    Logger.warning("Request: Local Excel Analyses")
 
     # Read input
-    company = get_company_from_parameters(request)
-    comparing = get_comparing_from_parameters(request)
-    selected_scenarios = get_scenarios_from_parameters(request)
-    selected_strategies = get_strategies_from_parameters(request)
-    output = get_output_from_parameters(request)
+    Logger.warning("Processing parameters")
+    company = helper.get_company_from_parameters(request)
+    comparing = helper.get_comparing_from_parameters(request)
+    selected_scenarios = helper.get_scenarios_from_parameters(request)
+    selected_strategies = helper.get_strategies_from_parameters(request)
+    output = helper.get_output_from_parameters(request)
 
-    fleet_data = get_fleet_data_from_parameters(request, company)
+    Logger.warning("Processing fleet data")
+    fleet_data = helper.get_fleet_data_from_parameters(request, company)
     fleet = fleet_data["fleet"]
 
-    scenario_data = get_scenario_data_from_parameters(request)
+    Logger.warning("Processing scenario data")
+    scenario_data = helper.get_scenario_data_from_parameters(request)
     scenarios = scenario_data["scenarios"]
     valid_scenario_names = scenario_data["scenario_names"]
 
     # Process data
-    data = process_data(fleet,
+    data = helper.process_data(fleet,
                         scenarios,
                         valid_scenario_names,
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
  
     # Return output
     output_format = request.args.get("output_format")
-    return format_output(output_format, data)
+    return helper.format_output(output_format, data)
 
 
 @app.route("/external_excel", methods=["POST"])
 def process_external_excel():
 
     # Read input
-    company = get_company_from_parameters(request)
-    comparing = get_comparing_from_parameters(request)
-    selected_scenarios = get_scenarios_from_parameters(request)
-    selected_strategies = get_strategies_from_parameters(request)
-    output = get_output_from_parameters(request)
+    Logger.warning("Processing parameters")
+    company = helper.get_company_from_parameters(request)
+    comparing = helper.get_comparing_from_parameters(request)
+    selected_scenarios = helper.get_scenarios_from_parameters(request)
+    selected_strategies = helper.get_strategies_from_parameters(request)
+    output = helper.get_output_from_parameters(request)
 
-    excel_data = get_encoded_excel_from_body(request, company)
-    fleet = excel_data["fleet"]
-    scenarios = excel_data["scenarios"]
-    valid_scenario_names = excel_data["scenario_names"]
+    # Get the fleet and scenario data
+    fleet = helper.get_excel_fleet_data_from_body(request, company)
+    scenarios, valid_scenario_names = helper.get_scenarios()
 
     # Process data
-    data = process_data(fleet,
+    Logger.warning("Predicting")
+    data = helper.process_data(fleet,
                         scenarios,
                         valid_scenario_names,
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
 
     # Return output
+    Logger.warning("Outputting")
     output_format = request.args.get("output_format")
-    return format_output(output_format, data)
+    return helper.format_output(output_format, data)
 
 
 @app.route("/json_data", methods=["POST"])
 def process_json_data():
 
     # Read input
-    comparing = get_comparing_from_parameters(request)
-    selected_scenarios = get_scenarios_from_parameters(request)
-    selected_strategies = get_strategies_from_parameters(request)
-    output = get_output_from_parameters(request)
+    comparing = helper.get_comparing_from_parameters(request)
+    selected_scenarios = helper.get_scenarios_from_parameters(request)
+    selected_strategies = helper.get_strategies_from_parameters(request)
+    output = helper.get_output_from_parameters(request)
 
-    json_data = get_json_data_from_body(request)
+    json_data = helper.get_json_data_from_body(request)
     fleet = json_data["fleet"]
     scenarios = json_data["scenarios"]
     valid_scenario_names = json_data["scenario_names"]
 
     # Process data
-    data = process_data(fleet,
+    data = helper.process_data(fleet,
                         scenarios,
                         valid_scenario_names,
                         output,
                         comparing,
                         selected_scenarios,
-                        selected_strategies,
-                        logger)
+                        selected_strategies)
 
     # Return output
     output_format = request.args.get("output_format")
-    return format_output(output_format, data)
+    return helper.format_output(output_format, data)
 
 
 @app.errorhandler(403)
@@ -156,6 +175,9 @@ def return_error_response(exception):
 
 
 if __name__ == "__main__":
+
+    # Setup logger 
+    Logger.initialize(timezone_string="Europe/Amsterdam", level="WARNING")
 
     # Print running message
     print("Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
