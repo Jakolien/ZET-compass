@@ -2,13 +2,13 @@ from data_objects.Vehicle import Vehicle
 from excel_interfaces.AbstractExcelInterface import AbstractExcelInterface
 from exceptions import NoExcelFileFound, NoFleetDataFound
 from utility_functions import convert_dutch_string_to_boolean
+from Logger import Logger
 
 
 class FleetInterface(AbstractExcelInterface):
 
     fleet: dict = {}
-
-    print("fleet is empty now")
+    Logger.warning("Fleet is empty now")
 
     def __init__(self, company: str, path_to_fleet_data: str):
 
