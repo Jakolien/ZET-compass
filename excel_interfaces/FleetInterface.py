@@ -1,3 +1,4 @@
+from typing import Callable
 from data_objects.Vehicle import Vehicle
 from excel_interfaces.AbstractExcelInterface import AbstractExcelInterface
 from exceptions import NoExcelFileFound, NoFleetDataFound
@@ -71,9 +72,19 @@ class FleetInterface(AbstractExcelInterface):
 
     def get_vehicle(self, number_plate, sheet_name, index):
         """
-        
-        """
+        Get the vehicle data from the Excel sheet and create a vehicle object from it.
 
+        Parameters:
+            number_plate (str): The number plate of the vehicle.
+            sheet_name (str): The name of the sheet that the vehicle data is on.
+            index (int): The index of the row that the vehicle data is on.
+
+        Raises:
+            ValueError: Raised if the vehicle data is invalid.
+
+        Returns:
+            Vehicle: The vehicle object that was created from the vehicle data.
+        """
 
         # Get all the data from the Excel sheet
         vehicle_type = self.get_cell_value(sheet_name, f"B{index}")
@@ -95,21 +106,43 @@ class FleetInterface(AbstractExcelInterface):
 
         # Create the vehicle object and return it
         return Vehicle(
-            number_plate,
-            vehicle_type,
-            int(category),
-            fuel_type,
-            int(euronorm),
-            int(year_of_purchase),
-            is_cooled,
-            int(PTO_fuel_consumption),
-            int(expected_total_distance_traveled_in_km),
-            int(maximum_daily_distance_in_km),
-            int(amount_of_operational_days),
-            drives_in_future_ZE_zone,
-            int(technological_lifespan),
-            loading_times,
-            int(charging_time_depot),
-            int(charging_time_public),
-            electricity_type
+            self.set_vehicle_value(number_plate, "Nummerplaat"),
+            self.set_vehicle_value(vehicle_type, "Vehicle Type"),
+            self.set_vehicle_value(category, "Categorie", int),
+            self.set_vehicle_value(fuel_type, "Brandstof type"),
+            self.set_vehicle_value(euronorm, "Euronorm", int),
+            self.set_vehicle_value(year_of_purchase, "Aanschafjaar", int),
+            self.set_vehicle_value(is_cooled, "Gekoeld"),
+            self.set_vehicle_value(PTO_fuel_consumption, "Gebruik", int),
+            self.set_vehicle_value(expected_total_distance_traveled_in_km, "Verwachte afstand", int),
+            self.set_vehicle_value(maximum_daily_distance_in_km, "Maximum dagelijkse afstand", int),
+            self.set_vehicle_value(amount_of_operational_days, "Gebruiksdagen", int),
+            self.set_vehicle_value(drives_in_future_ZE_zone, "Ritten in ZE zone"),
+            self.set_vehicle_value(technological_lifespan, "Levensverwachting", int),
+            self.set_vehicle_value(loading_times, "Laadtijd"),
+            self.set_vehicle_value(charging_time_depot, "Oplaadtijd depot", int),
+            self.set_vehicle_value(charging_time_public, "Oplaadtijd publiekelijk", int),
+            self.set_vehicle_value(electricity_type, "Elektricteitstype")
         )
+
+    def set_vehicle_value(self, value: str, value_name: str, conversion: Callable[[str], any]=lambda x: x):
+        """
+        Perform a check on the vehicle data and convert it to the correct type if necessary.
+
+        Parameters:
+            value (str): The value that needs to be checked and converted.
+            value_name (str): The name of the value that needs to be checked and converted, used for error messages.
+            conversion (Callable[[str], any]): The function that needs to be used to convert the value.
+
+        Raises:
+            ValueError: Raised if the value is invalid.
+
+        Returns:
+            any: The converted value.
+        """
+        # Check and convert the value
+        try: return conversion(value)
+
+        # If the value is invalid, raise an error
+        except Exception as e:
+            raise ValueError(f"{value_name} is niet geschikt voor gebruik, het voertuig wordt overgeslagen...")
