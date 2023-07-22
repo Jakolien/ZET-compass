@@ -249,6 +249,38 @@
         </table>
     {% endif %}
 
+    {% if errors %}
+        <h2 class="text-center">Wagenpark Foutmeldingen</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nummerbord</th>
+                    <th>Foutmelding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Foutmeldingen -->
+                {% for number_plate, error in errors["skipped_invalid_rows"].items() %}
+                    <tr>
+                        <td>{{ number_plate }}</td>
+                        <td>{{ error }}</td>
+                    </tr>
+                {% endfor %}
+
+                <!-- Lege regels -->
+                <tr>
+                    {% if errors["skipped_empty_rows"] > 1 %}
+                        <td colspan="2">Er zijn {{ errors["skipped_empty_rows"] }} lege regels overgeslagen</td>
+                    {% elif errors["skipped_empty_rows"] == 1 %}
+                        <td colspan="2">Er is 1 lege regel overgeslagen</td>
+                    {% else %}
+                        <td colspan="2">Er zijn geen lege regels overgeslagen</td>
+                    {% endif %}
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
     {% if "scenarios" in data %}
         <h2 class="text-center">Scenarios</h2>
         {% for scenario_type, vehicle_types in data["scenarios"].items() %}

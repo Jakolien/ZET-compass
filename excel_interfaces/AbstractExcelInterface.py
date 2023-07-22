@@ -8,7 +8,7 @@ class AbstractExcelInterface:
     file_name: str = None
     excel_model: ExcelCompiler = None
 
-    def __init__(self, path_to_excel):
+    def __init__(self, path_to_excel, error: Exception=NoExcelFileFound):
 
         """Initialises an interface for an Excel file.
         This interface can read from the file, but won't actually change it.
@@ -27,11 +27,11 @@ class AbstractExcelInterface:
         try:
             self.excel_model = ExcelCompiler(filename=path_to_excel)
         except:
-            raise NoExcelFileFound
+            raise error
 
     def check_sheet_names(self, names: list):
         """
-
+        
         """
 
         for name in names:
@@ -46,7 +46,6 @@ class AbstractExcelInterface:
     def get_cell_value(self, sheet_name: str, cell_address: str, backup_sheet_name: str=None):
 
         """Gets the value of the specified cell.
-
         :param sheet_name: The name of the Excel Worksheet.
         :type: str
         :param cell_address: The address of the cell. Consists of a column and row number. Example: A14.

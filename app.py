@@ -89,7 +89,7 @@ def process_external_excel():
     output = helper.get_output_from_parameters(request)
 
     # Get the fleet and scenario data
-    fleet = helper.get_excel_fleet_data_from_body(request, company)
+    fleet, fleet_errors = helper.get_excel_fleet_data_from_body(request, company)
     scenarios, valid_scenario_names = helper.get_scenarios()
 
     # Process data
@@ -105,7 +105,7 @@ def process_external_excel():
     # Return output
     Logger.warning("Outputting")
     output_format = request.args.get("output_format")
-    return helper.format_output(output_format, data)
+    return helper.format_output(output_format, data, fleet_errors)
 
 
 @app.route("/json_data", methods=["POST"])
