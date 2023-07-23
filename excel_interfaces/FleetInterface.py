@@ -1,12 +1,20 @@
 from typing import Callable
 from data_objects.Vehicle import Vehicle
 from excel_interfaces.AbstractExcelInterface import AbstractExcelInterface
-from exceptions import NoExcelFileFound, NoFleetDataFound
-from utility_functions import convert_dutch_string_to_boolean
-from Logger import Logger
+from exceptions import NoFleetDataFound
+from utility_functions import convert_dutch_string_to_boolean as string_to_boolean
 
 
 class FleetInterface(AbstractExcelInterface):
+    """
+    The fleet interface helps to read fleet data from an Excel file.
+    The attributes of the class are accessible after initialisation.
+    They can be used to get all the data.
+
+    Attributes:
+        fleet (dict): A dictionary containing all the vehicles in the fleet.
+        errors (dict): A dictionary containing all the errors that occurred during the initialisation.
+    """
 
     # Prepare dictionaries for the fleet and errors
     fleet: dict = {}
@@ -16,7 +24,7 @@ class FleetInterface(AbstractExcelInterface):
     }
 
     # Prepare a list of vehicle types, this list is private
-    __vehicle_types = ['Kleine bestelwagen', 'Medium bestelwagen','Medium luxe bestelwagen','Grote bestelwagen','Kleine bakwagen (12t)','Grote bakwagen (18t)','Trekker-oplegger']
+    __types = ['Kleine bestelwagen', 'Medium bestelwagen','Medium luxe bestelwagen','Grote bestelwagen','Kleine bakwagen (12t)','Grote bakwagen (18t)','Trekker-oplegger']
 
     def __init__(self, company: str, path_to_fleet_data: str):
         """
@@ -86,43 +94,28 @@ class FleetInterface(AbstractExcelInterface):
             Vehicle: The vehicle object that was created from the vehicle data.
         """
 
-        # Get all the data from the Excel sheet
-        vehicle_type = self.get_cell_value(sheet_name, f"B{index}")
-        category = self.__vehicle_types.index(vehicle_type)
-        fuel_type = self.get_cell_value(sheet_name, f"C{index}")
-        euronorm = self.get_cell_value (sheet_name, f"D{index}")
-        year_of_purchase = self.get_cell_value(sheet_name, f"E{index}")
-        is_cooled = convert_dutch_string_to_boolean(self.get_cell_value(sheet_name, f"F{index}"))
-        PTO_fuel_consumption = self.get_cell_value(sheet_name, f"G{index}")
-        expected_total_distance_traveled_in_km = self.get_cell_value(sheet_name, f"H{index}")
-        maximum_daily_distance_in_km = self.get_cell_value(sheet_name, f"I{index}")
-        amount_of_operational_days = self.get_cell_value(sheet_name, f"J{index}")
-        drives_in_future_ZE_zone = convert_dutch_string_to_boolean(self.get_cell_value(sheet_name, f"K{index}"))
-        technological_lifespan = self.get_cell_value(sheet_name, f"L{index}")
-        loading_times = self.get_cell_value(sheet_name, f"M{index}")
-        charging_time_depot = self.get_cell_value(sheet_name, f"N{index}")
-        charging_time_public = self.get_cell_value(sheet_name, f"O{index}")
-        electricity_type = self.get_cell_value(sheet_name, f"P{index}")
+        # Get the vehicle data
+        vehicle_data = self.get_cell_value(sheet_name, f"B{index}:P{index}")
 
         # Create the vehicle object and return it
         return Vehicle(
             self.set_vehicle_value(number_plate, "Nummerplaat"),
-            self.set_vehicle_value(vehicle_type, "Vehicle Type"),
-            self.set_vehicle_value(category, "Categorie", int),
-            self.set_vehicle_value(fuel_type, "Brandstof type"),
-            self.set_vehicle_value(euronorm, "Euronorm", int),
-            self.set_vehicle_value(year_of_purchase, "Aanschafjaar", int),
-            self.set_vehicle_value(is_cooled, "Gekoeld"),
-            self.set_vehicle_value(PTO_fuel_consumption, "Gebruik", int),
-            self.set_vehicle_value(expected_total_distance_traveled_in_km, "Verwachte afstand", int),
-            self.set_vehicle_value(maximum_daily_distance_in_km, "Maximum dagelijkse afstand", int),
-            self.set_vehicle_value(amount_of_operational_days, "Gebruiksdagen", int),
-            self.set_vehicle_value(drives_in_future_ZE_zone, "Ritten in ZE zone"),
-            self.set_vehicle_value(technological_lifespan, "Levensverwachting", int),
-            self.set_vehicle_value(loading_times, "Laadtijd"),
-            self.set_vehicle_value(charging_time_depot, "Oplaadtijd depot", int),
-            self.set_vehicle_value(charging_time_public, "Oplaadtijd publiekelijk", int),
-            self.set_vehicle_value(electricity_type, "Elektricteitstype")
+            self.set_vehicle_value(vehicle_data[0], "Vehicle Type"),
+            self.set_vehicle_value(self.__types.index(vehicle_data[0]), "Categorie", int),
+            self.set_vehicle_value(vehicle_data[1], "Brandstof type"),
+            self.set_vehicle_value(vehicle_data[2], "Euronorm", int),
+            self.set_vehicle_value(vehicle_data[3], "Aanschafjaar", int),
+            self.set_vehicle_value(vehicle_data[4], "Gekoeld", string_to_boolean),
+            self.set_vehicle_value(vehicle_data[5], "Gebruik", int),
+            self.set_vehicle_value(vehicle_data[6], "Verwachte afstand", int),
+            self.set_vehicle_value(vehicle_data[7], "Maximum dagelijkse afstand", int),
+            self.set_vehicle_value(vehicle_data[8], "Gebruiksdagen", int),
+            self.set_vehicle_value(vehicle_data[9], "Ritten in ZE zone", string_to_boolean),
+            self.set_vehicle_value(vehicle_data[10], "Levensverwachting", int),
+            self.set_vehicle_value(vehicle_data[11], "Laadtijd"),
+            self.set_vehicle_value(vehicle_data[12], "Oplaadtijd depot", int),
+            self.set_vehicle_value(vehicle_data[13], "Oplaadtijd publiekelijk", int),
+            self.set_vehicle_value(vehicle_data[14], "Elektricteitstype")
         )
 
     def set_vehicle_value(self, value: str, value_name: str, conversion: Callable[[str], any]=lambda x: x):
