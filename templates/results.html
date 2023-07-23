@@ -267,6 +267,14 @@
                     </tr>
                 {% endfor %}
 
+                <!-- Standaardwaardes -->
+                {% for number_plate, defaulted in errors["defaulted_values"].items() %}
+                    <tr>
+                        <td>{{ number_plate }}</td>
+                        <td>{{ defaulted }}</td>
+                    </tr>
+                {% endfor %}
+
                 <!-- Lege regels -->
                 <tr>
                     {% if errors["skipped_empty_rows"] > 1 %}

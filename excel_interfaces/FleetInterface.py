@@ -20,11 +20,13 @@ class FleetInterface(AbstractExcelInterface):
     fleet: dict = {}
     errors: dict = {
         "skipped_empty_rows": 0,
-        "skipped_invalid_rows": {}
+        "skipped_invalid_rows": {},
+        "defaulted_values": {}
     }
 
-    # Prepare a list of vehicle types, this list is private
+    # Prepare a list of vehicle types and one for defaulted values, these lists are private
     __types = ['Kleine bestelwagen', 'Medium bestelwagen','Medium luxe bestelwagen','Grote bestelwagen','Kleine bakwagen (12t)','Grote bakwagen (18t)','Trekker-oplegger']
+    __defaulted_values = []
 
     def __init__(self, company: str, path_to_fleet_data: str):
         """
@@ -66,13 +68,16 @@ class FleetInterface(AbstractExcelInterface):
                 self.errors["skipped_empty_rows"] += empty_row_counter
                 empty_row_counter = 0
 
-            # Get the vehicle data and add it to the fleet
+            # Get the vehicle data and add it to the fleet, process the defaulted values
             try:
                 self.fleet[number_plate] = self.get_vehicle(number_plate, sheet_name, index)
+                self.process_defaulted_values(number_plate)
             
-            # If the row is invalid, save it and skip it
+            # Check if the vehicle data is invalid
             except Exception as e:
+                # Save the error and clear the defaulted values for this vehicle
                 self.errors["skipped_invalid_rows"][number_plate] = e
+                self.__defaulted_values = []
 
         # Check if the fleet is empty, if so, raise an error
         if len(self.fleet) == 0:
@@ -102,23 +107,23 @@ class FleetInterface(AbstractExcelInterface):
             self.set_vehicle_value(number_plate, "Nummerplaat"),
             self.set_vehicle_value(vehicle_data[0], "Vehicle Type"),
             self.set_vehicle_value(self.__types.index(vehicle_data[0]), "Categorie", int),
-            self.set_vehicle_value(vehicle_data[1], "Brandstof type"),
-            self.set_vehicle_value(vehicle_data[2], "Euronorm", int),
+            self.set_vehicle_value(vehicle_data[1], "Brandstof type", default="Diesel"),
+            self.set_vehicle_value(vehicle_data[2], "Euronorm", int, 6),
             self.set_vehicle_value(vehicle_data[3], "Aanschafjaar", int),
-            self.set_vehicle_value(vehicle_data[4], "Gekoeld", string_to_boolean),
-            self.set_vehicle_value(vehicle_data[5], "Gebruik", int),
+            self.set_vehicle_value(vehicle_data[4], "Gekoeld", string_to_boolean, False),
+            self.set_vehicle_value(vehicle_data[5], "Gebruik", int, 0),
             self.set_vehicle_value(vehicle_data[6], "Verwachte afstand", int),
-            self.set_vehicle_value(vehicle_data[7], "Maximum dagelijkse afstand", int),
-            self.set_vehicle_value(vehicle_data[8], "Gebruiksdagen", int),
-            self.set_vehicle_value(vehicle_data[9], "Ritten in ZE zone", string_to_boolean),
-            self.set_vehicle_value(vehicle_data[10], "Levensverwachting", int),
-            self.set_vehicle_value(vehicle_data[11], "Laadtijd"),
-            self.set_vehicle_value(vehicle_data[12], "Oplaadtijd depot", int),
-            self.set_vehicle_value(vehicle_data[13], "Oplaadtijd publiekelijk", int),
-            self.set_vehicle_value(vehicle_data[14], "Elektricteitstype")
+            self.set_vehicle_value(vehicle_data[7], "Maximum dagelijkse afstand", int, 200),
+            self.set_vehicle_value(vehicle_data[8], "Gebruiksdagen", int, 220),
+            self.set_vehicle_value(vehicle_data[9], "Ritten in ZE zone", string_to_boolean, False),
+            self.set_vehicle_value(vehicle_data[10], "Levensverwachting", int, 7),
+            self.set_vehicle_value(vehicle_data[11], "Laadtijd", default="Combinatie"),
+            self.set_vehicle_value(vehicle_data[12], "Oplaadtijd depot", int, 8),
+            self.set_vehicle_value(vehicle_data[13], "Oplaadtijd publiekelijk", int, 3),
+            self.set_vehicle_value(vehicle_data[14], "Elektricteitstype", default="Groen")
         )
 
-    def set_vehicle_value(self, value: str, value_name: str, conversion: Callable[[str], any]=lambda x: x):
+    def set_vehicle_value(self, value: str, value_name: str, conversion: Callable[[str], any]=lambda x: x, default=None):
         """
         Perform a check on the vehicle data and convert it to the correct type if necessary.
 
@@ -126,6 +131,7 @@ class FleetInterface(AbstractExcelInterface):
             value (str): The value that needs to be checked and converted.
             value_name (str): The name of the value that needs to be checked and converted, used for error messages.
             conversion (Callable[[str], any]): The function that needs to be used to convert the value.
+            default (any): The default value that needs to be returned if the value is invalid.
 
         Raises:
             ValueError: Raised if the value is invalid.
@@ -136,6 +142,30 @@ class FleetInterface(AbstractExcelInterface):
         # Check and convert the value
         try: return conversion(value)
 
-        # If the value is invalid, raise an error
+        # If the value is invalid, return the default value if it is set
         except Exception as e:
-            raise ValueError(f"{value_name} is niet geschikt voor gebruik, het voertuig wordt overgeslagen...")
+            # Check if a default value is set, if so, return it
+            if default is not None:
+                self.__defaulted_values.append(f"{value_name} naar {default}")
+                return default
+
+            # If no default value is set, raise an error
+            raise ValueError(f"{value_name} is verplicht en niet geschikt voor gebruik, het voertuig wordt overgeslagen...")
+
+    def process_defaulted_values(self, number_plate: str):
+        """
+        Process the defaulted values and add them to the errors if necessary.
+        Empty the defaulted values list afterwards.
+
+        Parameters:
+            number_plate (str): The number plate of the vehicle.
+        """
+
+        # Check if there are any defaulted values
+        if len(self.__defaulted_values) > 0:
+            # Combine the failed values into a string and add it to the errors
+            values = ", ".join(self.__defaulted_values)
+            self.errors["defaulted_values"][number_plate] = f"De volgende kolommen zijn vervangen door standaardwaardes: {values}" 
+
+            # Empty the defaulted values list
+            self.__defaulted_values = []
