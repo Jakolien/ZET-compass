@@ -1,5 +1,3 @@
-# Creating tables for scenarios in SQLite
-
 CREATE TABLE IF NOT EXISTS scenario (
 	id INTEGER PRIMARY KEY,
 	naam TEXT NOT NULL
