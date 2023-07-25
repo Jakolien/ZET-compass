@@ -1,5 +1,5 @@
 from typing import Union
-from exceptions import NoExcelFileFound, PANTEIAModelError
+from exceptions import NoExcelFileFound, PANTEIAModelError, LinkedSheetError
 from pycel import ExcelCompiler
 
 
@@ -55,8 +55,12 @@ class AbstractExcelInterface:
         :rtype: str
         """
 
-        # Return the cell address
-        return self.excel_model.evaluate(f"{sheet_name}!{cell_address}")
+        try:
+            # Return the cell address
+            return self.excel_model.evaluate(f"{sheet_name}!{cell_address}")
+        except NotImplementedError as e:
+            # When it fails, return nothing
+            raise LinkedSheetError
 
     def set_cell_value(self, sheet_name: str, cell_address: str, value: any):
 

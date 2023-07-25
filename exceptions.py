@@ -78,6 +78,13 @@ class WrongInputType(Exception):
         super().__init__("The type of the input is invalid. Please check the function description or documentation.")
 
 
+class LinkedSheetError(Exception):
+
+    def __init__(self):
+    
+            super().__init__("The excel file has one or more linked sheets. Please remove the links.")
+
+
 class InvalidScenarioSpecified(Exception):
 
     def __init__(self):

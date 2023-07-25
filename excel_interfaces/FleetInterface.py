@@ -16,17 +16,9 @@ class FleetInterface(AbstractExcelInterface):
         errors (dict): A dictionary containing all the errors that occurred during the initialisation.
     """
 
-    # Prepare dictionaries for the fleet and errors
-    fleet: dict = {}
-    errors: dict = {
-        "skipped_empty_rows": 0,
-        "skipped_invalid_rows": {},
-        "defaulted_values": {}
-    }
-
     # Prepare a list of vehicle types and one for defaulted values, these lists are private
     __types = ['Kleine bestelwagen', 'Medium bestelwagen','Medium luxe bestelwagen','Grote bestelwagen','Kleine bakwagen (12t)','Grote bakwagen (18t)','Trekker-oplegger']
-    __defaulted_values = []
+
 
     def __init__(self, company: str, path_to_fleet_data: str):
         """
@@ -43,6 +35,15 @@ class FleetInterface(AbstractExcelInterface):
 
         # Initialise the AbstractExcelInterface
         super().__init__(path_to_fleet_data, NoFleetDataFound)
+
+        # Prepare dictionaries for the fleet and errors
+        self.fleet: dict = {}
+        self.defaulted_values = []
+        self.errors: dict = {
+            "skipped_empty_rows": 0,
+            "skipped_invalid_rows": {},
+            "defaulted_values": {}
+        }
 
         # Get the sheet data and prepare for the loop
         # The index is set to 1 because the first row is the header
@@ -63,6 +64,10 @@ class FleetInterface(AbstractExcelInterface):
                 reading_fleet_data = False
                 continue
 
+            # Check whether the row is the example, if so, skip it
+            if number_plate.lower() == "voorbeeld" or number_plate == "G258TD":
+                continue
+
             # Check whether we encountered empty rows before, if so, add them to the error count
             elif empty_row_counter > 0:
                 self.errors["skipped_empty_rows"] += empty_row_counter
@@ -77,7 +82,7 @@ class FleetInterface(AbstractExcelInterface):
             except Exception as e:
                 # Save the error and clear the defaulted values for this vehicle
                 self.errors["skipped_invalid_rows"][number_plate] = e
-                self.__defaulted_values = []
+                self.defaulted_values = []
 
         # Check if the fleet is empty, if so, raise an error
         if len(self.fleet) == 0:
@@ -99,14 +104,15 @@ class FleetInterface(AbstractExcelInterface):
             Vehicle: The vehicle object that was created from the vehicle data.
         """
 
-        # Get the vehicle data
+        # Get the vehicle data and remove any leading/trailing whitespace
         vehicle_data = self.get_cell_value(sheet_name, f"B{index}:P{index}")
+        vehicle_data = [str(cell).strip() for cell in vehicle_data]
 
         # Create the vehicle object and return it
         return Vehicle(
             self.set_vehicle_value(number_plate, "Nummerplaat"),
             self.set_vehicle_value(vehicle_data[0], "Vehicle Type"),
-            self.set_vehicle_value(self.__types.index(vehicle_data[0]), "Categorie", int),
+            self.set_vehicle_value(vehicle_data[0], "Categorie", self.__types.index),
             self.set_vehicle_value(vehicle_data[1], "Brandstof type", default="Diesel"),
             self.set_vehicle_value(vehicle_data[2], "Euronorm", int, 6),
             self.set_vehicle_value(vehicle_data[3], "Aanschafjaar", int),
@@ -146,7 +152,7 @@ class FleetInterface(AbstractExcelInterface):
         except Exception as e:
             # Check if a default value is set, if so, return it
             if default is not None:
-                self.__defaulted_values.append(f"{value_name} naar {default}")
+                self.defaulted_values.append(f"{value_name} naar {default}")
                 return default
 
             # If no default value is set, raise an error
@@ -162,10 +168,10 @@ class FleetInterface(AbstractExcelInterface):
         """
 
         # Check if there are any defaulted values
-        if len(self.__defaulted_values) > 0:
+        if len(self.defaulted_values) > 0:
             # Combine the failed values into a string and add it to the errors
-            values = ", ".join(self.__defaulted_values)
+            values = ", ".join(self.defaulted_values)
             self.errors["defaulted_values"][number_plate] = f"De volgende kolommen zijn vervangen door standaardwaardes: {values}" 
 
             # Empty the defaulted values list
-            self.__defaulted_values = []
+            self.defaulted_values = []
