@@ -227,9 +227,18 @@ def get_excel_fleet_data_from_body(request: Request, company: str):
     validate_body_with_schema("external_excel", body)
 
     # Decode the base64 data into a temporary file and construct the fleet data
-    fleet_file = base64_decode_file(body["fleet_data"])
-    fleet_data = FleetInterface(company, fleet_file.name)
-    return (fleet_data.fleet, fleet_data.errors)
+    fleet_file = base64_decode_file(body["fleet_data"]).name
+    fleet_data = FleetInterface(company, fleet_file)
+
+    # Get the fleet data and errors
+    fleet = fleet_data.fleet
+    errors = fleet_data.errors
+
+    # Destroy the temporary file
+    del fleet_data
+    os.remove(fleet_file)
+
+    return (fleet, errors)
 
 
 def get_scenarios():
