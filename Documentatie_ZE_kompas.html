@@ -138,8 +138,10 @@
     <h4>Body</h4>
     <p>De body bestaat uit JSON data:</p>
     <ul>
-        <li>fleet_data (string) [verplicht]: Dit is het base 64 geencodeerde Excel bestand van de wagenpark data.</li>
-        <li>scenario_data (string) [verplicht]: Dit is het base 64 geencodeerde Excel bestand van de scenario data.</li>
+        <li>
+            fleet_data (string) [verplicht]: Dit is het base 64 geencodeerde Excel bestand van de wagenpark data.
+            De naam van het Excel werkblad moet overeenkomen met de company parameter. "Input" en "Input wagenpark" worden ook geaccepteerd.
+        </li>
     </ul>
 
     <h3 class="mt-5">POST /json_data</h3>
