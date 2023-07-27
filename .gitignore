@@ -9,3 +9,4 @@
 /excel_interfaces/__pycache__
 /helpers/__pycache__
 /__pycache__
+*.sqlite

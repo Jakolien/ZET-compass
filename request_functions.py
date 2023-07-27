@@ -142,11 +142,12 @@ def get_fleet_data_from_parameters(request: Request, company: str):
         company (str): The company to get the fleet data for.
 
     Returns:
-        dict: The fleet data.
+        tuple: The fleet data and errors. Both are provided as dictionaries.
     """
 
     path_to_fleet_data = get_data_from_parameters(request, "fleet_data", f"./input/wagenpark.xlsx")
-    return FleetInterface(company, path_to_fleet_data).fleet
+    fleet_data = FleetInterface(company, path_to_fleet_data)
+    return (fleet_data.fleet, fleet_data.errors)
 
 
 def get_body(request: Request, error_on_empty: bool=True):
@@ -226,8 +227,19 @@ def get_excel_fleet_data_from_body(request: Request, company: str):
     validate_body_with_schema("external_excel", body)
 
     # Decode the base64 data into a temporary file and construct the fleet data
-    fleet_file = base64_decode_file(body["fleet_data"])
-    return FleetInterface(company, fleet_file.name).fleet
+    fleet_file = base64_decode_file(body["fleet_data"]).name
+    fleet_data = FleetInterface(company, fleet_file)
+
+    # Get the fleet data and errors
+    fleet = fleet_data.fleet
+    errors = fleet_data.errors
+
+    # Destroy the temporary file
+    del fleet_data
+    os.remove(fleet_file)
+
+    # Return the data
+    return (fleet, errors)
 
 
 def get_scenarios():
@@ -310,7 +322,7 @@ def process_data(fleet: dict,
     return data
 
 
-def format_output(output_format: str, data: dict):
+def format_output(output_format: str, data: dict, errors: dict=None):
     """Format the model output.
 
     :param output_format: The format in which the results will be formatted.
@@ -367,7 +379,8 @@ def format_output(output_format: str, data: dict):
                                data=data,
                                result_properties=result_properties,
                                fleet_properties=fleet_properties,
-                               scenario_year_properties=scenario_year_properties)
+                               scenario_year_properties=scenario_year_properties,
+                               errors=errors)
 
 
     if output_format == "json":
