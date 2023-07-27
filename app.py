@@ -55,13 +55,10 @@ def process_local_excel():
     output = helper.get_output_from_parameters(request)
 
     Logger.warning("Processing fleet data")
-    fleet_data = helper.get_fleet_data_from_parameters(request, company)
-    fleet = fleet_data["fleet"]
+    fleet, fleet_errors = helper.get_fleet_data_from_parameters(request, company)
 
     Logger.warning("Processing scenario data")
-    scenario_data = helper.get_scenario_data_from_parameters(request)
-    scenarios = scenario_data["scenarios"]
-    valid_scenario_names = scenario_data["scenario_names"]
+    scenarios, valid_scenario_names = helper.get_scenarios()
 
     # Process data
     data = helper.process_data(fleet,
@@ -74,7 +71,7 @@ def process_local_excel():
  
     # Return output
     output_format = request.args.get("output_format")
-    return helper.format_output(output_format, data)
+    return helper.format_output(output_format, data, fleet_errors)
 
 
 @app.route("/external_excel", methods=["POST"])
@@ -94,13 +91,15 @@ def process_external_excel():
 
     # Process data
     Logger.warning("Predicting")
-    data = helper.process_data(fleet,
-                        scenarios,
-                        valid_scenario_names,
-                        output,
-                        comparing,
-                        selected_scenarios,
-                        selected_strategies)
+    data = helper.process_data(
+        fleet,
+        scenarios,
+        valid_scenario_names,
+        output,
+        comparing,
+        selected_scenarios,
+        selected_strategies
+    )
 
     # Return output
     Logger.warning("Outputting")

@@ -238,6 +238,7 @@ def get_excel_fleet_data_from_body(request: Request, company: str):
     del fleet_data
     os.remove(fleet_file)
 
+    # Return the data
     return (fleet, errors)
 
 
