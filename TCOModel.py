@@ -144,7 +144,7 @@ class TCOModel:
             vehicle_TCO = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -156,7 +156,7 @@ class TCOModel:
             vehicle_charging_capacity = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -167,7 +167,7 @@ class TCOModel:
             vehicle_charging_time = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -245,7 +245,7 @@ class TCOModel:
             vehicle_TCO = {}
             for number_plate in list(fleet_TCO.values())[1:]:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -257,7 +257,7 @@ class TCOModel:
             vehicle_charging_capacity = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -268,7 +268,7 @@ class TCOModel:
             vehicle_charging_time = {}
             for number_plate in fleet_TCO:
 
-                if number_plate == "G258TD" or number_plate == "voorbeeld":
+                if number_plate == "voorbeeld":
                     continue
 
                 vehicle_data = fleet_TCO[number_plate]
@@ -408,7 +408,7 @@ class TCOModel:
         # Get the sum for all the values
         for number_plate, scenarios in fleet_TCO.items():
 
-            if number_plate == "G258TD" or number_plate == "voorbeeld":
+            if number_plate == "voorbeeld":
                 continue
 
             for scenario, strategies in scenarios.items():
@@ -458,7 +458,7 @@ class TCOModel:
         # Get the sum for all the values
         for number_plate, scenarios in fleet_TCO.items():
 
-            if number_plate == "G258TD" or number_plate == "sum" or number_plate == "voorbeeld":
+            if number_plate == "sum" or number_plate == "voorbeeld":
                 continue
             if number_plate not in transition_year:
                 transition_year[number_plate] = {}
