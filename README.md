@@ -43,7 +43,7 @@ De following steps are required to run the application:
 
 Originally written as a Jupyter notebook by Jakolien van der Meer.
 Lecturer at the research group Supply Chain Innovation at the HZ University of Applied Sciences.
-Email: [jakolien.meer@gmail.com](mailto:jakolien.meer@gmail.com?subject=TransportTransport%20Kompas)
+Email: [mail address](mailto:jakolien.meer@gmail.com?subject=TransportTransport%20Kompas)
 
 Rewritten to a Flask application by Julien Kenneth Pleijte.
 IT Bachelor Student at the HZ University of Applied Sciences.
