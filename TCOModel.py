@@ -213,8 +213,12 @@ class TCOModel:
         """
 
         # Check if scenario name is valid
-        if strategy_name not in self.valid_strategies.keys():
+        if not strategy_name:
+            strategy_name = list(self.valid_strategies.keys())[0]
+        elif strategy_name not in self.valid_strategies.keys():
             raise InvalidScenarioSpecified
+        
+        # Get the strategy
         strategy = {
             strategy_name: self.valid_strategies[strategy_name]
         }
@@ -243,7 +247,7 @@ class TCOModel:
         # Create TCO graphs for every vehicle if 10 or less but skip the first (example).
         if 2 < len(fleet_TCO) < 11:
             vehicle_TCO = {}
-            for number_plate in list(fleet_TCO.values())[1:]:
+            for number_plate in list(fleet_TCO.keys()):
 
                 if number_plate == "voorbeeld":
                     continue

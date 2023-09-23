@@ -93,54 +93,55 @@ class GraphHelper:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
+            strategies = []
             scenarios = {}
             graphs = {}
-            strategy = 'strategy_4'     # TODO change this to current strategy
+            
             for scenario in vehicle_data:
                 strategies = vehicle_data[scenario]
-                scenarios[scenario] = strategies[strategy]
+                scenarios[scenario] = strategies
                 graphs[scenario] = {}
+            
+            for strategy in list(strategies.keys()):
+                # graphs = {}
+                graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
 
-            graphs = {}
-            graph, axes = subplots(figsize=(15, 5), nrows=1, ncols=2, tight_layout=True)
+                # Plot scenarios
+                line_index = 0
+                for scenario in scenarios:
 
-            # Plot scenarios
+                    scenario_data = scenarios[scenario]
+                    year_labels = scenario_data.keys()
+                    ls = ['--', '-.', ':'][line_index % 3]
+                    TCO_costs = [year_data.get("tco", 0) for year, year_data in scenario_data.items()]
+                    TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in scenario_data.items()]
+                    line_index += 1
 
-            line_index = 0
-            for scenario in scenarios:
+                    axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
+                    axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Scenario {scenario}")
 
-                scenario_data = scenarios[scenario]
-                year_labels = scenario_data.keys()
-                ls = ['--', '-.', ':'][line_index % 3]
-                TCO_costs = [year_data.get("tco", 0) for year, year_data in scenario_data.items()]
-                TCO_emissions = [year_data.get("CO2_emissions", 0) for year, year_data in scenario_data.items()]
-                line_index += 1
+                # Set labels cost graph
+                axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
+                axes[0].set_xlabel("jaar")
+                axes[0].set_ylabel("TCO per jaar (euro)")
+                axes[0].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-                axes[0].plot(year_labels, TCO_costs, alpha=0.8, linestyle=ls)
-                axes[1].plot(year_labels, TCO_emissions, alpha=0.8, linestyle=ls, label=f"Scenario {scenario}")
+                # Set labels emissions graph
+                axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
+                axes[1].set_xlabel("jaar")
+                axes[1].set_ylabel("CO2 per jaar (ton)")
+                axes[1].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-            # Set labels cost graph
-            axes[0].set_title(f"Jaarlijkse kosten {number_plate}")
-            axes[0].set_xlabel("jaar")
-            axes[0].set_ylabel("TCO per jaar (euro)")
-            axes[0].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Set legend
+                axes[0].legend(loc="best")
+                axes[1].legend(loc="best")
+                #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
 
-            # Set labels emissions graph
-            axes[1].set_title(f"Jaarlijkse uitstoot {number_plate}")
-            axes[1].set_xlabel("jaar")
-            axes[1].set_ylabel("CO2 per jaar (ton)")
-            axes[1].get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+                # Encode graph
+                graphs[strategy] = self.encode_graph_to_base64(graph)
 
-            # Set legend
-            axes[0].legend(loc="best")
-            axes[1].legend(loc="best")
-            #axes[1].legend(loc="upper left", bbox_to_anchor=(1.05, 1))
-
-            # Encode graph
-            graphs[strategy] = self.encode_graph_to_base64(graph)
-
-            # Close figure
-            close()
+                # Close figure
+                close()
 
         return graphs
 
