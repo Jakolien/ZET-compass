@@ -56,26 +56,29 @@ class FleetInterface(AbstractExcelInterface):
         while index < 50 or reading_fleet_data:
             # Increment the index and get the number plate
             index += 1
-            number_plate = self.get_cell_value(sheet_name, f"A{index}",)
-
-            # Check whether the row is empty, if so, save it and skip it
-            if number_plate is None:
-                empty_row_counter += 1
-                reading_fleet_data = False
-                continue
-
-            # Check whether the row is the example, if so, skip it
-            if number_plate.lower() == "voorbeeld" or number_plate == "G258TD":
-                continue
-
-            # Check whether we encountered empty rows before, if so, add them to the error count
-            elif empty_row_counter > 0:
-                self.errors["skipped_empty_rows"] += empty_row_counter
-                empty_row_counter = 0
-                reading_fleet_data = True
+            number_plate = self.get_cell_value(sheet_name, f"A{index}")
+            
+            # Convert the number plate to a string if it's not already, except for when it is empty
+            number_plate = str(number_plate) if type(number_plate) not in [str, type(None)] else number_plate
 
             # Get the vehicle data and add it to the fleet, process the defaulted values
             try:
+                # Check whether the row is empty, if so, save it and skip it
+                if number_plate is None:
+                    empty_row_counter += 1
+                    reading_fleet_data = False
+                    continue
+
+                # Check whether the row is the example, if so, skip it
+                if number_plate.lower() == "voorbeeld" or number_plate == "G258TD":
+                    continue
+
+                # Check whether we encountered empty rows before, if so, add them to the error count
+                elif empty_row_counter > 0:
+                    self.errors["skipped_empty_rows"] += empty_row_counter
+                    empty_row_counter = 0
+                    reading_fleet_data
+
                 self.fleet[number_plate] = self.get_vehicle(number_plate, sheet_name, index)
                 self.process_defaulted_values(number_plate)
             
