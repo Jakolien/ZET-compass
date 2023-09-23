@@ -72,6 +72,7 @@ class FleetInterface(AbstractExcelInterface):
             elif empty_row_counter > 0:
                 self.errors["skipped_empty_rows"] += empty_row_counter
                 empty_row_counter = 0
+                reading_fleet_data = True
 
             # Get the vehicle data and add it to the fleet, process the defaulted values
             try:
