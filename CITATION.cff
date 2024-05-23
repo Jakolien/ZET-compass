@@ -16,6 +16,6 @@ keywords:
   - "Logistics"
   - "Transport"
   - research
-license: Apache-2.0
+license: GNU GPL v3.0
 message: "If you use this software, please cite it using these metadata."
 repository-code: "https://github.com/Jakolien/ZET-compass"
